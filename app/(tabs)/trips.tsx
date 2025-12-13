@@ -5,22 +5,22 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
-export default function HomeScreen() {
+export default function TripsScreen() {
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
       headerImage={
         <IconSymbol
           size={310}
           color="#808080"
-          name="house.fill"
+          name="map.fill"
           style={styles.headerImage}
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Home</ThemedText>
+        <ThemedText type="title">Trips</ThemedText>
       </ThemedView>
-      <ThemedText>This is the Home tab placeholder.</ThemedText>
+      <ThemedText>This is the Trips tab placeholder.</ThemedText>
     </ParallaxScrollView>
   );
 }

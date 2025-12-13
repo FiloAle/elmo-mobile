@@ -1,8 +1,6 @@
-import { Tabs } from 'expo-router';
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import React from 'react';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -10,26 +8,39 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
+    <NativeTabs
+      blurEffect="systemMaterial"
+      backgroundColor="transparent"
+      shadowColor="transparent"
+      iconColor={{
+        selected: Colors[colorScheme ?? 'light'].tint,
+      }}
+      labelStyle={{
+        selected: {
+          color: Colors[colorScheme ?? 'light'].tint,
+        },
       }}>
-      <Tabs.Screen
+      <NativeTabs.Trigger
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          icon: { sf: 'house.fill' },
         }}
       />
-      <Tabs.Screen
-        name="explore"
+      <NativeTabs.Trigger
+        name="trips"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Trips',
+          icon: { sf: 'map.fill' },
         }}
       />
-    </Tabs>
+      <NativeTabs.Trigger
+        name="car"
+        options={{
+          title: 'Car',
+          icon: { sf: 'car.fill' },
+        }}
+      />
+    </NativeTabs>
   );
 }
