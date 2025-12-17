@@ -34,6 +34,6 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 8,
   },
 });
