@@ -25,6 +25,14 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
   },
+  // Elmo Custom Colors
+  elmo: {
+    background: '#01191D', // Deep Dark Teal
+    accent: '#2DD4BF', // Mint Green/Cyan
+    text: '#FFFFFF',
+    textSecondary: '#A1A1AA', // Light Grey
+    cardDark: '#022429', // Slightly lighter than background for cards
+  },
 };
 
 export const Fonts = Platform.select({
