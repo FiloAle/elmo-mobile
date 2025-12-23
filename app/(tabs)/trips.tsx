@@ -1,9 +1,10 @@
-
-import { StyleSheet, ScrollView, View, Text, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { Colors } from '@/constants/theme';
 import TripHeader from '@/components/trips/TripHeader';
 import HistoryTripCard from '@/components/trips/HistoryTripCard';
 import UpcomingTripCard from '@/components/trips/UpcomingTripCard';
+import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 
 // Dummy Data
 const HISTORY_TRIPS = [
@@ -12,7 +13,7 @@ const HISTORY_TRIPS = [
     date: { month: 'OCT', day: '07' },
     city: 'Arona',
     distance: '153.1km',
-    trackImage: 'https://picsum.photos/seed/map1/200/200', // Placeholder for map
+    trackImage: require('../../assets/images/Percorso Arona.jpg'),
     images: [
       'https://picsum.photos/seed/trip1a/200/200',
       'https://picsum.photos/seed/trip1b/200/200',
@@ -26,9 +27,9 @@ const HISTORY_TRIPS = [
   {
     id: '2',
     date: { month: 'SEP', day: '15' },
-    city: 'Lugano',
+    city: 'Lecco',
     distance: '89.4km',
-    trackImage: 'https://picsum.photos/seed/map2/200/200',
+    trackImage: require('../../assets/images/Percorso lecco.jpg'),
     images: [
       'https://picsum.photos/seed/trip2a/200/200',
     ],
@@ -43,11 +44,11 @@ const UPCOMING_TRIPS = [
   {
     id: '3',
     date: { month: 'DEC', day: '03' },
-    city: 'Venice',
+    city: 'Monte Bianco',
     daysLeft: 5,
     time: '10:30',
     distance: '113.8km',
-    image: 'https://picsum.photos/seed/venice/300/300',
+    image: require('../../assets/images/monte bianco.jpg'),
     friends: [
       'https://picsum.photos/seed/user6/100',
       'https://picsum.photos/seed/user7/100',
@@ -66,31 +67,50 @@ const UPCOMING_TRIPS = [
     friends: [
       'https://picsum.photos/seed/user3/100',
       'https://picsum.photos/seed/user4/100',
+      'https://picsum.photos/seed/user5/100',
     ]
   }
 ];
 
 export default function TripsScreen() {
   const upcomingTrip = UPCOMING_TRIPS[0];
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
+  // Keep titles visible (removed opacity animations as per previous state)
+  const historyTitleStyle = useAnimatedStyle(() => {
+    return { opacity: 1 };
+  });
+
+  const upcomingTitleStyle = useAnimatedStyle(() => {
+    return { opacity: 1 };
+  });
 
   return (
     <View style={styles.container}>
       <TripHeader />
 
-      <ScrollView
+      <Animated.ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        stickyHeaderIndices={[0]}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        stickyHeaderIndices={[0]} // Index 0 is History Header
         showsVerticalScrollIndicator={false}
       >
 
         {/* History Title - Sticky (Index 0) */}
         <View style={styles.headerContainer}>
-          <Text style={styles.sectionTitle}>History</Text>
+          <Animated.Text style={[styles.sectionTitle, historyTitleStyle]}>History</Animated.Text>
         </View>
 
-        {/* History Items (Index 1) */}
-        <View style={styles.sectionContent}>
+        {/* History Items */}
+        <View style={styles.sectionHistory}>
           {HISTORY_TRIPS.map((trip) => (
             <HistoryTripCard
               key={trip.id}
@@ -104,10 +124,9 @@ export default function TripsScreen() {
           ))}
         </View>
 
-        {/* Upcoming Section (Index 2) */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming</Text>
-          {/* Only showing first trip, highlighted */}
+        {/* Upcoming Section (Bottom) */}
+        <View style={styles.sectionUpcoming}>
+          <Animated.Text style={[styles.sectionTitle, upcomingTitleStyle]}>Upcoming</Animated.Text>
           <UpcomingTripCard
             key={upcomingTrip.id}
             date={upcomingTrip.date}
@@ -124,11 +143,12 @@ export default function TripsScreen() {
         {/* Bottom Padding for Tab Bar and FAB */}
         <View style={{ height: 120 }} />
 
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* Floating Action Button */}
       <TouchableOpacity style={styles.fab} activeOpacity={0.8}>
-        <Text style={styles.fabText}>ADD TRIP</Text>
+        <Ionicons name="add" size={24} color="#000" style={styles.fabIcon} />
+        <Animated.Text style={styles.fabText}>Add Trip</Animated.Text>
       </TouchableOpacity>
     </View>
   );
@@ -144,33 +164,36 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 0,
+    paddingTop: 10,
+    paddingBottom: 20,
   },
   headerContainer: {
     backgroundColor: Colors.elmo.background,
-    paddingVertical: 10,
+    paddingVertical: 8,
     zIndex: 10,
   },
   sectionTitle: {
     color: Colors.elmo.text,
     fontSize: 27,
     fontFamily: 'serif',
-    fontWeight: 'bold',
+    fontWeight: 'normal',
     marginLeft: 20,
+    marginBottom: 24,
   },
-  sectionContent: {
+  sectionHistory: {
     marginBottom: 20,
   },
-  section: {
-    marginBottom: 20,
+  sectionUpcoming: {
+    marginBottom: 10,
+    marginTop: 8,
   },
   fab: {
     position: 'absolute',
-    bottom: 90,
+    bottom: 100, // Adjusted to float above tab bar
     alignSelf: 'center',
     backgroundColor: Colors.elmo.accent,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
+    paddingVertical: 12, // Reduced vertical padding slightly since icon adds height
+    paddingHorizontal: 24,
     borderRadius: 100,
     elevation: 8,
     shadowColor: '#000',
@@ -178,10 +201,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     zIndex: 100,
+    flexDirection: 'row', // Align icon and text
+    alignItems: 'center',
+    gap: 8, // Space between icon and text
+  },
+  fabIcon: {
+    fontWeight: 'bold',
   },
   fabText: {
     color: '#000',
-    fontWeight: 'bold',
+    fontWeight: 'regular',
     fontSize: 16,
   }
 });

@@ -1,8 +1,8 @@
-
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { Colors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface UpcomingTripCardProps {
     date: { month: string; day: string };
@@ -10,166 +10,200 @@ interface UpcomingTripCardProps {
     daysLeft: number;
     time: string;
     distance: string;
-    image: string;
+    image: string | number;
     friends: string[];
     highlighted?: boolean;
 }
 
+import { useRouter } from 'expo-router';
+// ... existing imports
+
 export default function UpcomingTripCard({ date, city, daysLeft, time, distance, image, friends, highlighted }: UpcomingTripCardProps) {
+    const router = useRouter();
+
+    const handlePress = () => {
+        // Only navigate if it's the Monte Bianco trip (or generic if desired, prompt said "Locate the UpcomingTripCard that displays 'Monte Bianco' trip")
+        // But making it generic is better UX.
+        router.push({
+            pathname: '/trip-detail',
+            params: {
+                city,
+                status: 'On Going',
+                date: `${date.day}, ${date.month}`,
+                distance,
+                // Passing image source is tricky via params if it's a 'require' number.
+                // We'll skip passing 'image' if it's a number, so the detail screen uses its default fallback or specific logic.
+                image: typeof image === 'string' ? image : undefined
+            }
+        });
+    };
+
     return (
-        <View style={[styles.container, highlighted && styles.containerSquare]}>
-            {/* Date Column - Consistent with History */}
-            <View style={styles.dateColumn}>
-                <Text style={styles.monthText}>{date.month}</Text>
-                <View style={styles.dayCircle}>
-                    <Text style={styles.dayText}>{date.day}</Text>
+        <TouchableOpacity
+            style={styles.container}
+            activeOpacity={0.9}
+            onPress={handlePress}
+        >
+            {/* Main Card Container */}
+            <View style={styles.card}>
+
+                {/* Top Section: Full Width Image */}
+                <View style={styles.imageContainer}>
+                    <Image source={typeof image === 'string' ? { uri: image } : image} style={styles.image} contentFit="cover" />
+
+                    {/* Image Overlay Gradient for text readability (optional but recommended) */}
+                    <LinearGradient
+                        colors={['rgba(0,0,0,0.6)', 'transparent']}
+                        style={styles.textOverlayGradient}
+                    />
+
+                    {/* Top Left: Date Overlay */}
+                    <View style={styles.dateOverlay}>
+                        <Text style={styles.overlayText}>{date.day}, {date.month}</Text>
+                    </View>
+
+                    {/* Top Right: Days Left Overlay */}
+                    <View style={styles.daysLeftOverlay}>
+                        <Text style={styles.overlayText}>{daysLeft} Days Left</Text>
+                    </View>
                 </View>
-                <View style={[styles.line, highlighted && { opacity: 0 }]} />
-                {/* Hide line if square/highlighted? Or keep it? The prompt says "The #2DD4BF stroke should wrap around this square container." 
-                    The container includes the date column currently.
-                    "Each trip "group" starts with the date label... content grid... remove left date column" - Wait, that was the previous request (History).
-                    Current prompt for Upcoming: "The #2DD4BF stroke should wrap around this square container." implied the CARD is the square.
-                    The current implementation has date column OUTSIDE the card style (styles.card).
-                    If the stroke wraps the "square container", and "Upcoming" card is a perfect square...
-                    Let's assume the "Card" part (right side) is the square, OR the whole thing.
-                    Given "Upcoming Section... Date indicator: On the far left of each card", the date is part of the visual row.
-                    However, usually "Card" refers to the box. 
-                    If I make the *internal* card square, the date column stays on left.
-                    The prompt says: "Ensure the 'Upcoming' card is also a perfect square... The #2DD4BF stroke should wrap around this square container."
-                    I will apply the stroke to the `styles.card` view and make THAT square.
+
+                {/* Bottom Section: Details */}
+                <View style={styles.detailsContainer}>
+
+                    {/* Left Column: Location & Stats */}
+                    <View style={styles.leftDetails}>
+                        <View style={styles.locationRow}>
+                            <Ionicons name="location-sharp" size={20} color={Colors.elmo.accent} />
+                            <Text style={styles.cityText}>{city}</Text>
+                        </View>
+                    </View>
+
+                    {/* Right Column: Avatars */}
+                    <View style={styles.rightDetails}>
+                        <View style={styles.avatarsContainer}>
+                            {friends.slice(0, 4).map((friend, index) => (
+                                <View key={index} style={[styles.avatarCircle, { zIndex: 4 - index, marginLeft: index === 0 ? 0 : -8 }]}>
+                                    <Image source={{ uri: friend }} style={styles.avatarImage} />
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+
+                </View>
+            </View>
+
+            {/* Outer Glow Effect (Centered, Behind Card) */}
+            <View style={styles.glowContainer}>
+                {/* 
+                   We simulate the diffuse glow using a view with shadow properties 
+                   that sits behind the main card or applying it to the container if possible.
+                   Since 'elevation' on Android is limited, user approved the iOS shadow props.
                 */}
             </View>
-
-            {/* Card Content */}
-            <View style={[
-                styles.card,
-                highlighted && styles.cardHighlighted
-            ]}>
-                {/* Left Side: Destination Image */}
-                <Image source={{ uri: image }} style={styles.image} contentFit="cover" />
-
-                {/* Right Side: Details */}
-                <View style={styles.detailsContainer}>
-                    <View style={styles.locationHeader}>
-                        <Ionicons name="location-sharp" size={18} color={Colors.elmo.accent} />
-                        <Text style={styles.cityText}>{city}</Text>
-                    </View>
-
-                    <View style={styles.avatarsContainer}>
-                        {friends.slice(0, 4).map((friend, index) => (
-                            <View key={index} style={[styles.avatarCircle, { zIndex: 4 - index, marginLeft: index === 0 ? 0 : -8 }]}>
-                                <Image source={{ uri: friend }} style={styles.avatarImage} />
-                            </View>
-                        ))}
-                    </View>
-
-                    <View style={styles.infoRow}>
-                        <Text style={styles.infoText}>{daysLeft} Days Left</Text>
-                    </View>
-                    <View style={styles.secondaryInfoRow}>
-                        <Text style={styles.subInfoText}>Time ({time})</Text>
-                        <Text style={styles.subInfoText}>•</Text>
-                        <Text style={styles.subInfoText}>Distance ({distance})</Text>
-                    </View>
-                </View>
-            </View>
-        </View>
+        </TouchableOpacity>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
         paddingHorizontal: 20,
         marginBottom: 20,
-        height: 160,
-    },
-    containerSquare: {
-        // If the inner card is square, the container height might need to be dynamic or large enough.
-        // We let the card determine the height.
-        height: 'auto',
-        aspectRatio: 'auto', // Container isn't the square, the card is.
-    },
-    dateColumn: {
-        alignItems: 'center',
-        marginRight: 15,
-        width: 40,
-    },
-    monthText: {
-        color: Colors.elmo.textSecondary,
-        fontSize: 12,
-        fontWeight: 'bold',
-        marginBottom: 4,
-    },
-    dayCircle: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    dayText: {
-        color: '#000',
-        fontWeight: 'bold',
-        fontSize: 14,
-    },
-    line: {
-        width: 1,
-        flex: 1,
-        backgroundColor: Colors.elmo.textSecondary,
-        opacity: 0.3,
-        marginTop: 8,
+        // Centered Glow Implementation
+        shadowColor: Colors.elmo.accent,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.5,
+        shadowRadius: 5,
+        elevation: 5, // Android shadow fallback (black usually, but kept for depth)
     },
     card: {
-        flex: 1,
-        flexDirection: 'row',
-        backgroundColor: Colors.elmo.cardDark,
-        borderRadius: 20,
+        flexDirection: 'column',
+        backgroundColor: '#0A1F1F', // Dark Teal
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: Colors.elmo.accent, // #2DD4BF
         overflow: 'hidden',
-        padding: 10,
     },
-    cardHighlighted: {
-        aspectRatio: 1, // Make the card square
-        // Shadow/Glow
-        shadowColor: '#2DD4BF',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.6,
-        shadowRadius: 10,
-        elevation: 10, // Android
+    imageContainer: {
+        width: '100%',
+        height: 200,
+        position: 'relative',
     },
     image: {
-        width: 100,
+        width: '100%',
         height: '100%',
-        borderRadius: 15,
-        backgroundColor: '#333',
+    },
+    textOverlayGradient: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 90, // Gradient only at the top
+    },
+    dateOverlay: {
+        position: 'absolute',
+        top: 16,
+        left: 16,
+    },
+    daysLeftOverlay: {
+        position: 'absolute',
+        top: 16,
+        right: 16,
+    },
+    overlayText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'regular',
+        textShadowColor: 'rgba(0,0,0,0.5)',
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 0,
     },
     detailsContainer: {
-        flex: 1,
-        paddingLeft: 12,
-        justifyContent: 'center',
+        padding: 16,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
-    locationHeader: {
+    leftDetails: {
+        flexDirection: 'column',
+    },
+    locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        marginBottom: 8,
+        gap: 6,
+        marginBottom: 6,
     },
     cityText: {
         color: Colors.elmo.accent,
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 22,
+        fontWeight: 'regular',
+    },
+    statsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+    },
+    statText: {
+        color: Colors.elmo.textSecondary,
+        fontSize: 12,
+        fontWeight: '500',
+    },
+    statSeparator: {
+        color: Colors.elmo.textSecondary,
+        fontSize: 12,
+    },
+    rightDetails: {
+        justifyContent: 'center',
     },
     avatarsContainer: {
         flexDirection: 'row',
-        marginBottom: 10,
     },
     avatarCircle: {
-        width: 26,
-        height: 26,
-        borderRadius: 13,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
         borderWidth: 1.5,
-        borderColor: Colors.elmo.cardDark,
+        borderColor: '#0A1F1F',
         overflow: 'hidden',
         backgroundColor: '#ccc',
     },
@@ -177,21 +211,14 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-    infoRow: {
-        marginBottom: 4,
-    },
-    infoText: {
-        color: Colors.elmo.text,
-        fontWeight: '600',
-        fontSize: 14,
-    },
-    secondaryInfoRow: {
-        flexDirection: 'row',
-        gap: 6,
-        alignItems: 'center',
-    },
-    subInfoText: {
-        color: Colors.elmo.textSecondary,
-        fontSize: 10,
-    },
+    glowContainer: {
+        // Placeholder if we needed a separate view for 'glow', 
+        // but applying shadow directly to 'container' works best for iOS 'halo'.
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: -1,
+    }
 });

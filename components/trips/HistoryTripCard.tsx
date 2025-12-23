@@ -9,11 +9,13 @@ interface HistoryTripCardProps {
     city: string;
     distance: string;
     images: string[];
-    trackImage: string;
+    trackImage: string | number;
     friends: string[]; // URLs for avatars
 }
 
 export default function HistoryTripCard({ date, city, distance, images, trackImage, friends }: HistoryTripCardProps) {
+    const trackImageSource = typeof trackImage === 'string' ? { uri: trackImage } : trackImage;
+
     return (
         <View style={styles.container}>
             {/* Left Column: Date */}
@@ -31,7 +33,7 @@ export default function HistoryTripCard({ date, city, distance, images, trackIma
                 <View style={styles.cardsRow}>
                     {/* Map Snippet */}
                     <View style={[styles.cardBox, styles.mapBox]}>
-                        <Image source={{ uri: trackImage }} style={styles.imageFill} contentFit="cover" />
+                        <Image source={trackImageSource} style={styles.imageFill} contentFit="cover" />
                         {/* Overlay for GPS track (visual effect if needed) */}
                         <View style={styles.overlay} />
                     </View>

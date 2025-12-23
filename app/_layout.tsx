@@ -17,6 +17,8 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        <Stack.Screen name="trip-detail" options={{ presentation: 'fullScreenModal', headerShown: false }} />
+        <Stack.Screen name="add-stop" options={{ presentation: 'fullScreenModal', headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
