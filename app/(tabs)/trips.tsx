@@ -100,11 +100,13 @@ export default function TripsScreen() {
         contentContainerStyle={styles.scrollContent}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
-        stickyHeaderIndices={[0]} // Index 0 is History Header
-        showsVerticalScrollIndicator={false}
+        stickyHeaderIndices={[1]} // Index 1 is History Header (after Spacer)
+        showsVerticalScrollIndicator={true}
       >
+        {/* Spacer at the beginning to push content down slightly if requested, or just top padding */}
+        <View style={{ height: 20 }} />
 
-        {/* History Title - Sticky (Index 0) */}
+        {/* History Title - Sticky (Index 1) */}
         <View style={styles.headerContainer}>
           <Animated.Text style={[styles.sectionTitle, historyTitleStyle]}>History</Animated.Text>
         </View>
@@ -127,21 +129,23 @@ export default function TripsScreen() {
         {/* Upcoming Section (Bottom) */}
         <View style={styles.sectionUpcoming}>
           <Animated.Text style={[styles.sectionTitle, upcomingTitleStyle]}>Upcoming</Animated.Text>
-          <UpcomingTripCard
-            key={upcomingTrip.id}
-            date={upcomingTrip.date}
-            city={upcomingTrip.city}
-            daysLeft={upcomingTrip.daysLeft}
-            time={upcomingTrip.time}
-            distance={upcomingTrip.distance}
-            image={upcomingTrip.image}
-            friends={upcomingTrip.friends}
-            highlighted={true}
-          />
+          <View style={styles.upcomingCardWrapper}>
+            <UpcomingTripCard
+              key={upcomingTrip.id}
+              date={upcomingTrip.date}
+              city={upcomingTrip.city}
+              daysLeft={upcomingTrip.daysLeft}
+              time={upcomingTrip.time}
+              distance={upcomingTrip.distance}
+              image={upcomingTrip.image}
+              friends={upcomingTrip.friends}
+              highlighted={true}
+            />
+          </View>
         </View>
 
-        {/* Bottom Padding for Tab Bar and FAB */}
-        <View style={{ height: 120 }} />
+        {/* Bottom Padding for Tab Bar */}
+        <View style={{ height: 150 }} />
 
       </Animated.ScrollView>
 
@@ -185,14 +189,18 @@ const styles = StyleSheet.create({
   },
   sectionUpcoming: {
     marginBottom: 10,
-    marginTop: 8,
+    marginTop: 20, // Increased spacing
+  },
+  upcomingCardWrapper: {
+    position: 'relative',
+    alignItems: 'center',
   },
   fab: {
     position: 'absolute',
     bottom: 100, // Adjusted to float above tab bar
     alignSelf: 'center',
     backgroundColor: Colors.elmo.accent,
-    paddingVertical: 12, // Reduced vertical padding slightly since icon adds height
+    paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 100,
     elevation: 8,

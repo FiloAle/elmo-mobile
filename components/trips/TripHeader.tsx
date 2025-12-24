@@ -17,8 +17,11 @@ export default function TripHeader() {
             </View>
             <View style={styles.profileContainer}>
                 <View style={styles.profileAvatar}>
-                    {/* Profile Avatar Placeholder - Solid Color Circle for now */}
-                    <Ionicons name="person" size={20} color={Colors.elmo.text} />
+                    <Image
+                        source={require('@/assets/images/profile image.jpeg')}
+                        style={styles.avatarImage}
+                        contentFit="cover"
+                    />
                 </View>
             </View>
         </View>
@@ -57,5 +60,12 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.elmo.accent,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    avatarImage: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: '#2DD4BF',
     },
 });
