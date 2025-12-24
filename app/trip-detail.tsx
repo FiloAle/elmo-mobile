@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Platform, Dimensions } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Platform, Dimensions, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import { Colors } from '@/constants/theme';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -18,16 +18,45 @@ const TIMELINE_DATA = [
     { id: '5', title: "Como", time: "15:00", status: 'upcoming', isDestination: true },
 ];
 
+// Mock Data for Bills
+const BILLS_DATA = [
+    { id: '1', category: 'Breakfast', participants: 3, price: '15€' },
+    { id: '2', category: 'Fuel', participants: 4, price: '45€' },
+    { id: '3', category: 'Tickets', participants: 4, price: '80€' },
+    { id: '4', category: 'Lunch', participants: 4, price: '60€' },
+    { id: '6', category: 'Parking', participants: 1, price: '5€' },
+];
+
+const ALBUM_DATA = [
+    { id: '1', uri: 'https://picsum.photos/id/10/400/400' },
+    { id: '2', uri: 'https://picsum.photos/id/11/400/400' },
+    { id: '3', uri: 'https://picsum.photos/id/12/400/400' },
+    { id: '4', uri: 'https://picsum.photos/id/13/400/400' },
+    { id: '5', uri: 'https://picsum.photos/id/14/400/400' },
+    { id: '6', uri: 'https://picsum.photos/id/15/400/400' },
+];
+
+const MUSIC_DATA = [
+    { id: '1', title: 'Midnight City', artist: 'M83', addedBy: 'Ale', cover: 'https://picsum.photos/id/50/200/200' },
+    { id: '2', title: 'Instant Crush', artist: 'Daft Punk', addedBy: 'Vale', cover: 'https://picsum.photos/id/51/200/200' },
+    { id: '3', title: 'Fluorescent Adolescent', artist: 'Arctic Monkeys', addedBy: 'Ste', cover: 'https://picsum.photos/id/52/200/200' },
+    { id: '4', title: 'Kids', artist: 'MGMT', addedBy: 'Ale', cover: 'https://picsum.photos/id/53/200/200' },
+    { id: '5', title: 'Breezeblocks', artist: 'alt-J', addedBy: 'Vale', cover: 'https://picsum.photos/id/54/200/200' },
+];
+
 export default function TripDetailScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const { city, status, date, distance, image } = params;
+    const [activeTab, setActiveTab] = useState('Trip');
+    const [sheetIndex, setSheetIndex] = useState(1);
 
     // Calculate snap points dynamically to stop strictly below header buttons
     // Buttons bottom: iOS ~104 (60+44), Android ~84 (40+44). 
-    // We add a small margin (e.g. 6-10px) to sit just under.
-    const topOffset = Platform.OS === 'ios' ? 110 : 90;
-    const topSnapPoint = height - topOffset;
+    // We want a top margin of approx 100px.
+    // Using topInset approach indirectly by setting the max snap point.
+    const topMargin = 100;
+    const topSnapPoint = height - topMargin;
     const snapPoints = useMemo(() => ['25%', '70%', topSnapPoint], [topSnapPoint]);
 
     const renderTimelineItem = (item: typeof TIMELINE_DATA[0], index: number) => {
@@ -81,6 +110,195 @@ export default function TripDetailScreen() {
         );
     };
 
+    const renderBillItem = (item: typeof BILLS_DATA[0], index: number) => (
+        <View key={item.id} style={styles.billCard}>
+            <View style={styles.billLeft}>
+                <View style={styles.billAvatar} />
+                <View>
+                    <Text style={styles.billCategory}>{item.category}</Text>
+                    <Text style={styles.billParticipants}>{item.participants} participants</Text>
+                </View>
+            </View>
+            <Text style={styles.billPrice}>{item.price}</Text>
+        </View>
+    );
+
+    const TripContent = () => (
+        <>
+            <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Trip Overview</Text>
+                <View style={styles.statusBadge}>
+                    <Text style={styles.statusText}>{status || 'On Going'}</Text>
+                </View>
+            </View>
+
+            {/* Trip Overview Section */}
+            <View style={styles.overviewSection}>
+                <Image
+                    source={typeof image === 'string' ? { uri: image } : require('../assets/images/monte bianco.jpg')}
+                    style={styles.destImage}
+                    contentFit="cover"
+                />
+                <View style={styles.overviewInfo}>
+                    <View style={styles.titleRow}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Ionicons name="location-outline" size={24} color={Colors.elmo.accent} />
+                            <Text style={styles.cityText}>{city || 'Como'}</Text>
+                        </View>
+                    </View>
+                    <View style={styles.avatarRow}>
+                        {[1, 2, 3].map((_, i) => (
+                            <View key={i} style={[styles.avatarPlaceholder, { marginLeft: i > 0 ? -10 : 0 }]} />
+                        ))}
+                    </View>
+                    <View style={styles.statsRow}>
+                        <Text style={styles.statText}>{date || '03, Dec'}</Text>
+                        <View style={styles.statDot} />
+                        <Text style={styles.statText}>10:30</Text>
+                        <View style={styles.statDot} />
+                        <Text style={styles.statText}>{distance || '113.8km'}</Text>
+                    </View>
+                </View>
+            </View>
+
+            <View style={styles.separator} />
+
+            <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Trip Details</Text>
+                <TouchableOpacity style={styles.editBadge}>
+                    <Text style={styles.editText}>Edit</Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* Timeline Section */}
+            <View style={styles.timelineSection}>
+                {TIMELINE_DATA.map((item, index) => renderTimelineItem(item, index))}
+            </View>
+        </>
+    );
+
+    const CostContent = () => (
+        <>
+            {/* Summary Row */}
+            <TouchableOpacity style={styles.costSummaryContainer} activeOpacity={0.7}>
+                <View style={styles.costSummaryLeft}>
+                    <View style={styles.walletIconContainer}>
+                        <Ionicons name="wallet-outline" size={20} color="#FFF" />
+                    </View>
+                    <View>
+                        <Text style={styles.costValue}>35.7€</Text>
+                        <Text style={styles.costLabel}>Cost for the Trip</Text>
+                    </View>
+                </View>
+
+                <View style={styles.costSummaryRight}>
+                    <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={styles.costValue}>42.3€</Text>
+                        <Text style={styles.costLabel}>You Should Receive</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#71717A" style={{ marginLeft: 8 }} />
+                </View>
+            </TouchableOpacity>
+
+            <View style={[styles.sectionHeader, { marginTop: 24 }]}>
+                <Text style={styles.sectionTitle}>Bill</Text>
+                <TouchableOpacity style={styles.editBadge}>
+                    <Text style={styles.editText}>Edit</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.billsList}>
+                {BILLS_DATA.map((item, index) => renderBillItem(item, index))}
+            </View>
+        </>
+    );
+
+    const AlbumContent = () => {
+        const screenWidth = Dimensions.get('window').width;
+        // Total horizontal padding: 24 (left) + 24 (right) = 48
+        // Gap between items: 10 * 2 = 20 (for 3 items there are 2 gaps)
+        // Item width = (screenWidth - 48 - 20) / 3
+        const gap = 10;
+        const padding = 24;
+        const itemWidth = (screenWidth - (padding * 2) - (gap * 2)) / 3;
+
+        return (
+            <View style={styles.albumGrid}>
+                {ALBUM_DATA.length === 0 ? (
+                    <View style={{ width: '100%', alignItems: 'center', marginTop: 40 }}>
+                        <Text style={{ color: '#A1A1AA', fontSize: 16 }}>No photos yet. Start capturing your trip!</Text>
+                    </View>
+                ) : (
+                    ALBUM_DATA.map((item) => (
+                        <Image
+                            key={item.id}
+                            source={{ uri: item.uri }}
+                            style={[styles.albumImage, { width: itemWidth, height: itemWidth }]}
+                            contentFit="cover"
+                        />
+                    ))
+                )}
+            </View>
+        );
+    };
+
+    const MusicContent = () => {
+        // Now Playing Data (Mock)
+        const currentSong = {
+            title: "Heroes",
+            artist: "David Bowie",
+            cover: "https://picsum.photos/id/88/300/300"
+        };
+
+        return (
+            <>
+                {/* Now Playing Card */}
+                <View style={styles.nowPlayingCard}>
+                    <Image source={{ uri: currentSong.cover }} style={styles.nowPlayingCover} contentFit="cover" />
+                    <View style={styles.nowPlayingInfo}>
+                        <Text style={styles.nowPlayingTitle} numberOfLines={1}>{currentSong.title}</Text>
+                        <Text style={styles.nowPlayingArtist} numberOfLines={1}>{currentSong.artist}</Text>
+                    </View>
+                    <View style={styles.nowPlayingControls}>
+                        <TouchableOpacity style={{ marginRight: 16 }}>
+                            <Ionicons name="heart-outline" size={24} color="#FFF" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.playButton}>
+                            <Ionicons name="pause" size={20} color="#000" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                <View style={[styles.sectionHeader, { marginTop: 32 }]}>
+                    <Text style={styles.sectionTitle}>Up Next</Text>
+                </View>
+
+                {/* Playlist */}
+                <View style={styles.playlistContainer}>
+                    {MUSIC_DATA.map((item, index) => (
+                        <View key={item.id} style={styles.playlistItem}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                                <Image source={{ uri: item.cover }} style={styles.playlistCover} contentFit="cover" />
+                                <View style={{ marginLeft: 12, flex: 1 }}>
+                                    <Text style={styles.playlistTitle} numberOfLines={1}>{item.title}</Text>
+                                    <Text style={styles.playlistArtist} numberOfLines={1}>{item.artist}</Text>
+                                </View>
+                            </View>
+
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                                {/* User who added the song */}
+                                <View style={styles.addedByAvatar}>
+                                    <Text style={styles.avatarInitials}>{item.addedBy[0]}</Text>
+                                </View>
+                                <MaterialCommunityIcons name="drag-horizontal" size={24} color="#555" />
+                            </View>
+                        </View>
+                    ))}
+                </View>
+            </>
+        );
+    };
+
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <View style={styles.container}>
@@ -109,80 +327,42 @@ export default function TripDetailScreen() {
                 {/* 3. Bottom Sheet Curtain */}
                 <BottomSheet
                     snapPoints={snapPoints}
-                    index={1} // Start at 70%
+                    index={sheetIndex} // Controlled index
+                    onChange={(index) => setSheetIndex(index)} // Sync state with interactions
                     handleIndicatorStyle={{ backgroundColor: '#555', width: 40 }}
                     backgroundStyle={{ backgroundColor: '#051616', borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
-                    enableContentPanningGesture={false} // Only allow dragging via the handle/header
-                    enableOverDrag={false} // Prevent dragging beyond the top snap point
                 >
                     <View style={{ flex: 1 }}>
-                        <BottomSheetScrollView
-                            contentContainerStyle={styles.scrollContent}
-                            showsVerticalScrollIndicator={false}
-                        >
+                        {/* Sticky Tab Bar Container */}
+                        <View style={{
+                            backgroundColor: '#051616',
+                            paddingHorizontal: 24,
+                            paddingBottom: 16,
+                            paddingTop: 16,
+                            borderTopLeftRadius: 30,
+                            borderTopRightRadius: 30
+                        }}>
                             {/* Navigation Pills */}
                             <View style={styles.pillTabsContainer}>
                                 {['Trip', 'Cost', 'Album', 'Music'].map((tab) => (
                                     <TouchableOpacity
                                         key={tab}
-                                        style={[styles.pillTab, tab === 'Trip' && styles.activePillTab]}
+                                        style={[styles.pillTab, activeTab === tab && styles.activePillTab]}
+                                        onPress={() => setActiveTab(tab)}
                                     >
-                                        <Text style={[styles.pillText, tab === 'Trip' && styles.activePillText]}>
+                                        <Text style={[styles.pillText, activeTab === tab && styles.activePillText]}>
                                             {tab}
                                         </Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
+                        </View>
 
-                            <View style={styles.sectionHeader}>
-                                <Text style={styles.sectionTitle}>Trip Overview</Text>
-                                <View style={styles.statusBadge}>
-                                    <Text style={styles.statusText}>{status || 'On Going'}</Text>
-                                </View>
-                            </View>
-
-                            {/* Trip Overview Section */}
-                            <View style={styles.overviewSection}>
-                                <Image
-                                    source={typeof image === 'string' ? { uri: image } : require('../assets/images/monte bianco.jpg')}
-                                    style={styles.destImage}
-                                    contentFit="cover"
-                                />
-                                <View style={styles.overviewInfo}>
-                                    <View style={styles.titleRow}>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                                            <Ionicons name="location-outline" size={24} color={Colors.elmo.accent} />
-                                            <Text style={styles.cityText}>{city || 'Como'}</Text>
-                                        </View>
-                                    </View>
-                                    <View style={styles.avatarRow}>
-                                        {[1, 2, 3].map((_, i) => (
-                                            <View key={i} style={[styles.avatarPlaceholder, { marginLeft: i > 0 ? -10 : 0 }]} />
-                                        ))}
-                                    </View>
-                                    <View style={styles.statsRow}>
-                                        <Text style={styles.statText}>{date || '03, Dec'}</Text>
-                                        <View style={styles.statDot} />
-                                        <Text style={styles.statText}>10:30</Text>
-                                        <View style={styles.statDot} />
-                                        <Text style={styles.statText}>{distance || '113.8km'}</Text>
-                                    </View>
-                                </View>
-                            </View>
-
-                            <View style={styles.separator} />
-
-                            <View style={styles.sectionHeader}>
-                                <Text style={styles.sectionTitle}>Trip Details</Text>
-                                <TouchableOpacity style={styles.editBadge}>
-                                    <Text style={styles.editText}>Edit</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            {/* Timeline Section */}
-                            <View style={styles.timelineSection}>
-                                {TIMELINE_DATA.map((item, index) => renderTimelineItem(item, index))}
-                            </View>
+                        <BottomSheetScrollView
+                            contentContainerStyle={styles.scrollContent}
+                            showsVerticalScrollIndicator={false}
+                        >
+                            {activeTab === 'Trip' ? <TripContent /> : activeTab === 'Cost' ? <CostContent /> : activeTab === 'Album' ? <AlbumContent /> : activeTab === 'Music' ? <MusicContent /> : null}
 
                             {/* Padding for bottom safety */}
                             <View style={{ height: 100 }} />
@@ -193,13 +373,39 @@ export default function TripDetailScreen() {
 
             {/* Footer Button - Fixed at bottom of Screen */}
             <View style={styles.fixedFooter}>
-                <TouchableOpacity
-                    style={styles.addStopButton}
-                    activeOpacity={0.8}
-                    onPress={() => router.push('/add-stop')}
-                >
-                    <Text style={styles.addStopButtonText}>+ Add Stop</Text>
-                </TouchableOpacity>
+                {activeTab === 'Trip' ? (
+                    <TouchableOpacity
+                        style={styles.addStopButton}
+                        activeOpacity={0.8}
+                        onPress={() => router.push('/add-stop')}
+                    >
+                        <Text style={styles.addStopButtonText}>+ Add Stop</Text>
+                    </TouchableOpacity>
+                ) : activeTab === 'Cost' ? (
+                    <TouchableOpacity
+                        style={styles.addBillButton}
+                        activeOpacity={0.8}
+                        onPress={() => { }} // TODO: Add Bill action
+                    >
+                        <Text style={styles.addBillButtonText}>+ Add Bill</Text>
+                    </TouchableOpacity>
+                ) : activeTab === 'Album' ? (
+                    <TouchableOpacity
+                        style={styles.addBillButton}
+                        activeOpacity={0.8}
+                        onPress={() => { }} // TODO: Add Photo action
+                    >
+                        <Text style={styles.addBillButtonText}>+ Add Photo</Text>
+                    </TouchableOpacity>
+                ) : activeTab === 'Music' ? (
+                    <TouchableOpacity
+                        style={styles.addBillButton}
+                        activeOpacity={0.8}
+                        onPress={() => { }} // TODO: Add Music action
+                    >
+                        <Text style={styles.addBillButtonText}>+ Add Music</Text>
+                    </TouchableOpacity>
+                ) : null}
             </View>
         </GestureHandlerRootView>
     );
@@ -248,7 +454,9 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
     },
     scrollContent: {
-        padding: 24,
+        paddingHorizontal: 24,
+        paddingBottom: 24,
+        paddingTop: 8,
     },
     pillTabsContainer: {
         flexDirection: 'row',
@@ -256,7 +464,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#0F2929',
         borderRadius: 30,
         padding: 4,
-        marginBottom: 24,
+        marginBottom: 0, // Removed bottom margin as padding is handled by parent/scrollview
     },
     pillTab: {
         paddingVertical: 8,
@@ -264,15 +472,17 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
     activePillTab: {
+        // User requested grey/white for cost, assuming for all active tabs
         backgroundColor: Colors.elmo.accent,
+    },
+    activePillText: {
+        color: '#000',
+        fontWeight: '600',
     },
     pillText: {
         color: '#B7B7B7',
         fontSize: 14,
         fontWeight: '400',
-    },
-    activePillText: {
-        color: '#000',
     },
     overviewSection: {
         flexDirection: 'row',
@@ -505,5 +715,188 @@ const styles = StyleSheet.create({
         color: '#051616',
         fontSize: 18,
         fontWeight: 'regular',
+    },
+    addBillButton: {
+        height: 48,
+        backgroundColor: '#2DD4BF', // Mint Green
+        borderRadius: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+    },
+    addBillButtonText: {
+        color: '#000',
+        fontSize: 18,
+        fontWeight: 'regular',
+    },
+    // Cost View Styles
+    costSummaryContainer: {
+        backgroundColor: '#0F0F10', // Dark Grey (Zinc-900 like)
+        borderRadius: 48,
+        padding: 16,
+        marginBottom: 24,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    costSummaryLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    costSummaryRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    walletIconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 32,
+        backgroundColor: '#27272A', // Zinc-800
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    costValue: {
+        color: Colors.elmo.accent,
+        fontSize: 18,
+        fontWeight: '600',
+    },
+    costLabel: {
+        color: '#A1A1AA', // Zinc-400
+        fontSize: 12,
+    },
+    billsList: {
+        gap: 12,
+    },
+    billCard: {
+        backgroundColor: '#0F0F10', // Very dark essentially black/grey
+        borderRadius: 32,
+        padding: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    billLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    billAvatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#3F3F46', // Avatar placeholder color
+    },
+    billCategory: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    billParticipants: {
+        color: '#71717A',
+        fontSize: 12,
+    },
+    billPrice: {
+        color: '#2DD4BF', // Mint
+        fontSize: 16,
+        fontWeight: '600',
+        marginRight: 8,
+    },
+    // Album Grid Styles
+    albumGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
+    },
+    albumImage: {
+        borderRadius: 12,
+        backgroundColor: '#333',
+    },
+    // Music View Styles
+    nowPlayingCard: {
+        backgroundColor: '#0F2929', // Darker Teal
+        borderRadius: 32,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    nowPlayingCover: {
+        width: 64,
+        height: 64,
+        borderRadius: 16,
+        backgroundColor: '#333',
+    },
+    nowPlayingInfo: {
+        flex: 1,
+        marginLeft: 16,
+        justifyContent: 'center',
+    },
+    nowPlayingTitle: {
+        color: '#FFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 4,
+    },
+    nowPlayingArtist: {
+        color: '#A1A1AA',
+        fontSize: 14,
+    },
+    nowPlayingControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    playButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: Colors.elmo.accent,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    playlistContainer: {
+        gap: 12,
+    },
+    playlistItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 8,
+        paddingHorizontal: 4,
+    },
+    playlistCover: {
+        width: 48,
+        height: 48,
+        borderRadius: 12,
+        backgroundColor: '#333',
+    },
+    playlistTitle: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    playlistArtist: {
+        color: '#71717A',
+        fontSize: 12,
+        marginTop: 2,
+    },
+    addedByAvatar: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        backgroundColor: '#555',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: '#000',
+    },
+    avatarInitials: {
+        color: '#FFF',
+        fontSize: 10,
+        fontWeight: 'bold',
     },
 });
