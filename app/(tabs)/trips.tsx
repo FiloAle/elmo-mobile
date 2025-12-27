@@ -1,4 +1,5 @@
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, FlatList, Text } from 'react-native';
+import { useRef, useState, useCallback } from 'react';
 import { Colors } from '@/constants/theme';
 import TripHeader from '@/components/trips/TripHeader';
 import HistoryTripCard from '@/components/trips/HistoryTripCard';
@@ -76,13 +77,15 @@ export default function TripsScreen() {
   const upcomingTrip = UPCOMING_TRIPS[0];
   const scrollY = useSharedValue(0);
 
+  // State for dynamic date
+  const [currentDate, setCurrentDate] = useState(`${HISTORY_TRIPS[0].date.day} ${HISTORY_TRIPS[0].date.month} 2025`);
+
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       scrollY.value = event.contentOffset.y;
     },
   });
 
-  // Keep titles visible (removed opacity animations as per previous state)
   const historyTitleStyle = useAnimatedStyle(() => {
     return { opacity: 1 };
   });
@@ -91,63 +94,81 @@ export default function TripsScreen() {
     return { opacity: 1 };
   });
 
+  // Viewability Config for Date Update
+  const onViewableItemsChanged = useCallback(({ viewableItems }: { viewableItems: any[] }) => {
+    if (viewableItems && viewableItems.length > 0) {
+      // Find the first visible item that is a history trip (has date)
+      const visibleTrip = viewableItems.find(item => item.item.date);
+      if (visibleTrip) {
+        const { day, month } = visibleTrip.item.date;
+        setCurrentDate(`${day} ${month} 2025`);
+      }
+    }
+  }, []);
+
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 50, // Update when 50% visible
+    minimumViewTime: 0,
+  }).current;
+
+  const renderFooter = () => (
+    <View>
+      <View style={styles.sectionUpcoming}>
+        <Animated.Text style={[styles.sectionTitle, upcomingTitleStyle, { marginLeft: 20, marginBottom: 16 }]}>Upcoming</Animated.Text>
+        <View style={styles.upcomingCardWrapper}>
+          <UpcomingTripCard
+            key={upcomingTrip.id}
+            date={upcomingTrip.date}
+            city={upcomingTrip.city}
+            daysLeft={upcomingTrip.daysLeft}
+            time={upcomingTrip.time}
+            distance={upcomingTrip.distance}
+            image={upcomingTrip.image}
+            friends={upcomingTrip.friends}
+            highlighted={true}
+          />
+        </View>
+      </View>
+      <View style={{ height: 150 }} />
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <TripHeader />
 
-      <Animated.ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        stickyHeaderIndices={[1]} // Index 1 is History Header (after Spacer)
-        showsVerticalScrollIndicator={true}
-      >
-        {/* Spacer at the beginning to push content down slightly if requested, or just top padding */}
-        <View style={{ height: 20 }} />
-
-        {/* History Title - Sticky (Index 1) */}
-        <View style={styles.headerContainer}>
+      {/* Fixed Header with Dynamic Date (Layer 3) */}
+      <View style={styles.headerContainer}>
+        <View style={styles.titleRow}>
           <Animated.Text style={[styles.sectionTitle, historyTitleStyle]}>History</Animated.Text>
+          <Text style={styles.headerDateText}>{currentDate}</Text>
         </View>
+      </View>
 
-        {/* History Items */}
-        <View style={styles.sectionHistory}>
-          {HISTORY_TRIPS.map((trip) => (
+      <View style={{ flex: 1, position: 'relative' }}>
+        <Animated.FlatList
+          data={HISTORY_TRIPS}
+          renderItem={({ item }) => (
             <HistoryTripCard
-              key={trip.id}
-              date={trip.date}
-              city={trip.city}
-              distance={trip.distance}
-              trackImage={trip.trackImage}
-              images={trip.images}
-              friends={trip.friends}
+              date={item.date}
+              city={item.city}
+              distance={item.distance}
+              trackImage={item.trackImage}
+              images={item.images}
+              friends={item.friends}
             />
-          ))}
-        </View>
-
-        {/* Upcoming Section (Bottom) */}
-        <View style={styles.sectionUpcoming}>
-          <Animated.Text style={[styles.sectionTitle, upcomingTitleStyle]}>Upcoming</Animated.Text>
-          <View style={styles.upcomingCardWrapper}>
-            <UpcomingTripCard
-              key={upcomingTrip.id}
-              date={upcomingTrip.date}
-              city={upcomingTrip.city}
-              daysLeft={upcomingTrip.daysLeft}
-              time={upcomingTrip.time}
-              distance={upcomingTrip.distance}
-              image={upcomingTrip.image}
-              friends={upcomingTrip.friends}
-              highlighted={true}
-            />
-          </View>
-        </View>
-
-        {/* Bottom Padding for Tab Bar */}
-        <View style={{ height: 150 }} />
-
-      </Animated.ScrollView>
+          )}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.scrollContent}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={true}
+          ListFooterComponent={renderFooter}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+        />
+        {/* Gradient Removed */}
+      </View>
 
       {/* Floating Action Button */}
       <TouchableOpacity style={styles.fab} activeOpacity={0.8}>
@@ -164,40 +185,45 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.elmo.background,
     position: 'relative',
   },
-  scrollView: {
-    flex: 1,
-  },
   scrollContent: {
     paddingTop: 10,
     paddingBottom: 20,
   },
   headerContainer: {
     backgroundColor: Colors.elmo.background,
-    paddingVertical: 8,
-    zIndex: 10,
+    paddingTop: 8,
+    paddingBottom: 8,
+    zIndex: 20,
+    paddingHorizontal: 20,
+  },
+  titleRow: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 4,
   },
   sectionTitle: {
     color: Colors.elmo.text,
     fontSize: 27,
     fontFamily: 'serif',
     fontWeight: 'normal',
-    marginLeft: 20,
-    marginBottom: 24,
+    // Removed margins as they are handled by container/row
   },
-  sectionHistory: {
-    marginBottom: 20,
+  headerDateText: {
+    color: '#94A3B8',
+    fontWeight: 'bold',
+    fontSize: 13,
+    textTransform: 'uppercase',
   },
   sectionUpcoming: {
     marginBottom: 10,
-    marginTop: 20, // Increased spacing
+    marginTop: 20,
   },
   upcomingCardWrapper: {
     position: 'relative',
-    alignItems: 'center',
   },
   fab: {
     position: 'absolute',
-    bottom: 100, // Adjusted to float above tab bar
+    bottom: 100,
     alignSelf: 'center',
     backgroundColor: Colors.elmo.accent,
     paddingVertical: 12,
@@ -209,16 +235,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     zIndex: 100,
-    flexDirection: 'row', // Align icon and text
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 8, // Space between icon and text
+    gap: 8,
   },
   fabIcon: {
     fontWeight: 'bold',
   },
   fabText: {
     color: '#000',
-    fontWeight: 'regular',
+    fontWeight: 'normal',
     fontSize: 16,
-  }
+  },
 });

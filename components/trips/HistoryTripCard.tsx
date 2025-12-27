@@ -1,4 +1,3 @@
-
 import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { Colors } from '@/constants/theme';
@@ -10,31 +9,21 @@ interface HistoryTripCardProps {
     distance: string;
     images: string[];
     trackImage: string | number;
-    friends: string[]; // URLs for avatars
+    friends: string[];
 }
 
-export default function HistoryTripCard({ date, city, distance, images, trackImage, friends }: HistoryTripCardProps) {
+// Removed showDate and isFirst props as date handling is moved to parent
+export default function HistoryTripCard({ city, distance, images, trackImage, friends }: HistoryTripCardProps) {
     const trackImageSource = typeof trackImage === 'string' ? { uri: trackImage } : trackImage;
 
     return (
         <View style={styles.container}>
-            {/* Left Column: Date */}
-            <View style={styles.dateColumn}>
-                <Text style={styles.monthText}>{date.month}</Text>
-                <View style={styles.dayCircle}>
-                    <Text style={styles.dayText}>{date.day}</Text>
-                </View>
-                {/* Connection Line */}
-                <View style={styles.line} />
-            </View>
-
             {/* Main Content */}
             <View style={styles.contentContainer}>
                 <View style={styles.cardsRow}>
                     {/* Map Snippet */}
                     <View style={[styles.cardBox, styles.mapBox]}>
                         <Image source={trackImageSource} style={styles.imageFill} contentFit="cover" />
-                        {/* Overlay for GPS track (visual effect if needed) */}
                         <View style={styles.overlay} />
                     </View>
 
@@ -61,7 +50,6 @@ export default function HistoryTripCard({ date, city, distance, images, trackIma
                     <View style={styles.avatarsContainer}>
                         {friends.slice(0, 3).map((friend, index) => (
                             <View key={index} style={[styles.avatarCircle, { zIndex: 3 - index, marginLeft: index === 0 ? 0 : -10 }]}>
-                                {/* Placeholder coloring or image */}
                                 <Image source={{ uri: friend }} style={styles.avatarImage} />
                             </View>
                         ))}
@@ -74,42 +62,10 @@ export default function HistoryTripCard({ date, city, distance, images, trackIma
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
         paddingHorizontal: 20,
         marginBottom: 20,
     },
-    dateColumn: {
-        alignItems: 'center',
-        marginRight: 15,
-        width: 40,
-    },
-    monthText: {
-        color: Colors.elmo.textSecondary,
-        fontSize: 12,
-        fontWeight: 'bold',
-        marginBottom: 4,
-    },
-    dayCircle: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 0,
-    },
-    dayText: {
-        color: '#000',
-        fontWeight: 'bold',
-        fontSize: 14,
-    },
-    line: {
-        width: 1,
-        flex: 1,
-        backgroundColor: Colors.elmo.textSecondary,
-        opacity: 0.3,
-        marginTop: 8,
-    },
+    // Removed dateHeader style
     contentContainer: {
         flex: 1,
     },
