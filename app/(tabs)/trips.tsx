@@ -19,6 +19,15 @@ const HISTORY_TRIPS = [
     images: [
       'https://picsum.photos/seed/trip1a/200/200',
       'https://picsum.photos/seed/trip1b/200/200',
+      'https://picsum.photos/seed/trip1c/200/200',
+      'https://picsum.photos/seed/trip1d/200/200',
+      'https://picsum.photos/seed/trip1e/200/200',
+      'https://picsum.photos/seed/trip1f/200/200',
+      'https://picsum.photos/seed/trip1g/200/200',
+      'https://picsum.photos/seed/trip1h/200/200',
+      'https://picsum.photos/seed/trip1i/200/200',
+      'https://picsum.photos/seed/trip1j/200/200',
+      'https://picsum.photos/seed/trip1k/200/200',
     ],
     friends: [
       'https://picsum.photos/seed/user1/100',
@@ -119,7 +128,15 @@ export default function TripsScreen() {
       <TripHeader />
 
       <View style={{ flex: 1, position: 'relative' }}>
+        <View style={styles.headerContainer}>
+          <View style={styles.titleRow}>
+            <Animated.Text style={[styles.sectionTitle, historyTitleStyle]}>History</Animated.Text>
+            <Text style={styles.headerDateText}>{currentDate}</Text>
+          </View>
+        </View>
+
         <Animated.FlatList
+          style={{ flex: 1 }}
           data={HISTORY_TRIPS}
           renderItem={({ item }) => (
             <HistoryTripCard
@@ -136,7 +153,7 @@ export default function TripsScreen() {
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={true}
-          ListHeaderComponent={() => (
+          ListFooterComponent={() => (
             <View>
               <View style={styles.sectionUpcoming}>
                 <Animated.Text style={[styles.sectionTitle, upcomingTitleStyle, { marginLeft: 20, marginBottom: 16 }]}>Upcoming</Animated.Text>
@@ -154,16 +171,9 @@ export default function TripsScreen() {
                   />
                 </View>
               </View>
-
-              <View style={styles.headerContainer}>
-                <View style={styles.titleRow}>
-                  <Animated.Text style={[styles.sectionTitle, historyTitleStyle]}>History</Animated.Text>
-                  <Text style={styles.headerDateText}>{currentDate}</Text>
-                </View>
-              </View>
+              <View style={{ height: 100 }} />
             </View>
           )}
-          ListFooterComponent={<View style={{ height: 100 }} />}
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
         />

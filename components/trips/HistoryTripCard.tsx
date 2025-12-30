@@ -27,37 +27,16 @@ export default function HistoryTripCard({ city, distance, images, trackImage, fr
                         <View style={styles.overlay} />
                     </View>
 
-                    {/* Photo Gallery Stack */}
-                    <View style={styles.photoStackContainer}>
-                        {/* We use a fixed set of dummy rotations for visual stability */}
-                        {images.slice(0, 3).map((img, index) => {
-                            const rotations = ['-6deg', '2deg', '8deg'];
-                            const xOffsets = [0, 15, 30]; // Horizontal stacking shift
-                            const yOffsets = [0, 5, -2]; // Slight vertical jiggle
+                    {/* Photo Box (Single Image with Overlay) */}
+                    <View style={[styles.cardBox, styles.photoBox]}>
+                        <Image source={{ uri: images[0] }} style={styles.imageFill} contentFit="cover" />
 
-                            return (
-                                <View
-                                    key={index}
-                                    style={[
-                                        styles.stackedPhoto,
-                                        {
-                                            zIndex: index,
-                                            transform: [{ rotate: rotations[index % 3] }],
-                                            left: xOffsets[index % 3] + 10, // Base padding + shift
-                                            top: yOffsets[index % 3] + 10,
-                                        }
-                                    ]}
-                                >
-                                    <Image source={{ uri: img }} style={styles.imageFill} contentFit="cover" />
-                                    {/* Overlay for the last visible item to show count if there are more */}
-                                    {index === 2 && images.length > 3 && (
-                                        <View style={styles.photoOverlay}>
-                                            <Text style={styles.photoCountText}>+{images.length - 3}</Text>
-                                        </View>
-                                    )}
-                                </View>
-                            );
-                        })}
+                        {/* Overlay if more than 1 image */}
+                        {images.length > 1 && (
+                            <View style={styles.photoCntOverlay}>
+                                <Text style={styles.photoCountText}>+{images.length - 1}</Text>
+                            </View>
+                        )}
                     </View>
                 </View>
 
@@ -105,31 +84,11 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     mapBox: {
-        flex: 1.2, // Give map slightly more space
+        flex: 1, // Equal width
     },
-    photoStackContainer: {
-        flex: 1,
+    photoBox: {
+        flex: 1, // Equal width
         position: 'relative',
-        // justifyContent: 'center', // Align roughly
-    },
-    stackedPhoto: {
-        position: 'absolute',
-        width: 110,
-        height: 110,
-        borderRadius: 12,
-        overflow: 'hidden',
-        borderWidth: 2,
-        borderColor: Colors.elmo.background, // #051616
-        // Shadow
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.30,
-        shadowRadius: 4.65,
-        elevation: 8,
-        backgroundColor: '#222',
     },
     imageFill: {
         width: '100%',
@@ -139,9 +98,9 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
         backgroundColor: 'rgba(0,0,0,0.3)',
     },
-    photoOverlay: {
+    photoCntOverlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.6)',
+        backgroundColor: 'rgba(0,0,0,0.4)',
         justifyContent: 'center',
         alignItems: 'center',
     },
