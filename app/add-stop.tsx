@@ -9,12 +9,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Colors } from '@/constants/theme';
 
 const CATEGORIES = [
-    { id: '0', name: 'Charging' },
-    { id: '1', name: 'Restaurant' },
-    { id: '2', name: 'Bar' },
-    { id: '3', name: 'Coffee' },
-    { id: '4', name: 'Shopping' },
-    { id: '5', name: 'Supermarket' },
+    { id: '0', name: 'Charging', icon: 'ev-station' },
+    { id: '1', name: 'Restaurant', icon: 'silverware-fork-knife' },
+    { id: '2', name: 'Bar', icon: 'glass-cocktail' },
+    { id: '3', name: 'Coffee', icon: 'coffee' },
+    { id: '4', name: 'Shopping', icon: 'shopping' },
+    { id: '5', name: 'Supermarket', icon: 'cart' },
 ];
 
 const CHARGING_STATIONS = [
@@ -135,6 +135,12 @@ export default function AddStopScreen() {
                                     activeOpacity={0.8}
                                     onPress={() => handleCategoryPress(cat.name)}
                                 >
+                                    <MaterialCommunityIcons
+                                        name={cat.icon as any}
+                                        size={20}
+                                        color={isActive ? '#000' : '#FFF'}
+                                        style={{ marginRight: 8 }}
+                                    />
                                     <Text style={[styles.categoryText, isActive && styles.categoryTextActive]}>
                                         {cat.name}
                                     </Text>
@@ -243,6 +249,8 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     categoryChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: '#27272A',
         borderRadius: 20,
         paddingVertical: 8,

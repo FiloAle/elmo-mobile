@@ -28,8 +28,8 @@ const styles = StyleSheet.create({
         paddingTop: 0, // Minimal padding for first item
     },
     dateText: {
-        color: '#fff',
-        fontWeight: 'regular',
+        color: '#FFFFFF',
+        fontWeight: '400',
         fontSize: 13,
         textTransform: 'uppercase',
     },

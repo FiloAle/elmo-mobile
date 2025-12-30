@@ -6,6 +6,7 @@ import HistoryTripCard from '@/components/trips/HistoryTripCard';
 import UpcomingTripCard from '@/components/trips/UpcomingTripCard';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 // Dummy Data
 const HISTORY_TRIPS = [
@@ -69,11 +70,13 @@ const UPCOMING_TRIPS = [
       'https://picsum.photos/seed/user3/100',
       'https://picsum.photos/seed/user4/100',
       'https://picsum.photos/seed/user5/100',
+      'https://picsum.photos/seed/user3/100'
     ]
   }
 ];
 
 export default function TripsScreen() {
+  const router = useRouter(); // Initialize router
   const upcomingTrip = UPCOMING_TRIPS[0];
   const scrollY = useSharedValue(0);
 
@@ -171,7 +174,11 @@ export default function TripsScreen() {
       </View>
 
       {/* Floating Action Button */}
-      <TouchableOpacity style={styles.fab} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={styles.fab}
+        activeOpacity={0.8}
+        onPress={() => router.push('/add-trip-selection')}
+      >
         <Ionicons name="add" size={24} color="#000" style={styles.fabIcon} />
         <Animated.Text style={styles.fabText}>Add Trip</Animated.Text>
       </TouchableOpacity>

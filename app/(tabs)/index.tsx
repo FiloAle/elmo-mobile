@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, ImageBackground, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,12 +9,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Colors } from '@/constants/theme';
 
 const CATEGORIES = [
-  { id: '0', name: 'Charging' },
-  { id: '1', name: 'Restaurant' },
-  { id: '2', name: 'Bar' },
-  { id: '3', name: 'Coffee' },
-  { id: '4', name: 'Shopping' },
-  { id: '5', name: 'Supermarket' },
+  { id: '0', name: 'Charging', icon: 'ev-station' },
+  { id: '1', name: 'Restaurant', icon: 'silverware-fork-knife' },
+  { id: '2', name: 'Bar', icon: 'glass-cocktail' },
+  { id: '3', name: 'Coffee', icon: 'coffee' },
+  { id: '4', name: 'Shopping', icon: 'shopping' },
+  { id: '5', name: 'Supermarket', icon: 'cart' },
 ];
 
 const CHARGING_STATIONS = [
@@ -37,12 +37,26 @@ export default function HomeScreen() {
 
   // Bottom Sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['30%', '90%'], []);
+  const snapPoints = useMemo(() => ['25%', '50%', '90%'], []);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Ensure specific conditions when entering the page:
+      // 1. Reset category to show traffic conditions (default view)
+      setActiveCategory(null);
+      // 2. Open the bottom sheet to the middle snap point (50%), leaving 25% for "hidden" state
+      // Add a slight delay to ensuring the layout is ready
+      setTimeout(() => {
+        bottomSheetRef.current?.snapToIndex(1);
+      }, 100);
+    }, [])
+  );
 
   useEffect(() => {
-    // Ensure sheet stays open. When category changes, we can optionally snap to a specific point.
-    // For now, keep it simple: always ensure it's at least at index 0.
-    bottomSheetRef.current?.snapToIndex(0);
+    // Ensure sheet stays open. When category changes, snap to default open state (50%)
+    if (activeCategory) {
+      bottomSheetRef.current?.snapToIndex(1);
+    }
   }, [activeCategory]);
 
   const handleCategoryPress = (category: string) => {
@@ -145,6 +159,12 @@ export default function HomeScreen() {
                   activeOpacity={0.8}
                   onPress={() => handleCategoryPress(cat.name)}
                 >
+                  <MaterialCommunityIcons
+                    name={cat.icon as any}
+                    size={20}
+                    color={isActive ? '#000' : '#FFF'}
+                    style={{ marginRight: 8 }}
+                  />
                   <Text style={[styles.categoryText, isActive && styles.categoryTextActive]}>
                     {cat.name}
                   </Text>
@@ -158,7 +178,7 @@ export default function HomeScreen() {
         <BottomSheet
           ref={bottomSheetRef}
           index={0} // Start at 40%
-          snapPoints={['40%', '90%']}
+          snapPoints={snapPoints}
           handleIndicatorStyle={{ backgroundColor: '#555', width: 40 }}
           backgroundStyle={{ backgroundColor: '#051616' }}
           style={{ zIndex: 50 }}
@@ -287,6 +307,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   categoryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#27272A',
     borderRadius: 20,
     paddingVertical: 8,
@@ -416,14 +438,16 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   lightCard: {
-    backgroundColor: '#F4F4F5',
+    backgroundColor: '#0F1F1F',
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
+    borderWidth: 0.5,
+    borderColor: Colors.elmo.accent,
   },
   cardHeaderTitle: {
-    color: '#000',
-    fontSize: 16,
+    color: '#FFF',
+    fontSize: 18,
     fontWeight: '600',
   },
   trafficRow: {
@@ -432,9 +456,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   alertIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: '#EF4444', // Red
     alignItems: 'center',
     justifyContent: 'center',
@@ -444,17 +468,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   alertTitle: {
-    color: '#000',
-    fontSize: 14,
+    color: '#FFF',
+    fontSize: 16,
     fontWeight: '600',
   },
   alertDistance: {
-    color: '#71717A',
-    fontSize: 12,
+    color: '#AAAAAA',
+    fontSize: 14,
   },
   alertDelay: {
     color: '#EF4444',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
     marginLeft: 8,
   },
@@ -464,25 +488,27 @@ const styles = StyleSheet.create({
   },
   shortcutCard: {
     flex: 1,
-    backgroundColor: '#F4F4F5',
+    backgroundColor: '#0F1F1F',
     borderRadius: 16,
     padding: 16,
     justifyContent: 'space-between',
     minHeight: 100,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)'
   },
   shortcutTitle: {
-    color: '#000',
+    color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 4,
   },
   shortcutAddress: {
-    color: '#71717A',
-    fontSize: 12,
+    color: '#AAAAAA',
+    fontSize: 14,
   },
   shortcutDistance: {
-    color: '#71717A', // Or maybe accent color if we want to highlight it
-    fontSize: 12,
+    color: '#AAAAAA', // Or maybe accent color if we want to highlight it
+    fontSize: 14,
     fontWeight: '500',
     marginTop: 12,
   },
