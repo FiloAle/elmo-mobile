@@ -47,9 +47,17 @@ const MUSIC_DATA = [
 export default function TripDetailScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
-    const { city, status, date, distance, image } = params;
+    const { city, status, date, distance, image, friends } = params;
     const [activeTab, setActiveTab] = useState('Trip');
     const [sheetIndex, setSheetIndex] = useState(1);
+
+    const friendsList = useMemo(() => {
+        try {
+            return typeof friends === 'string' ? JSON.parse(friends) : [];
+        } catch (e) {
+            return [];
+        }
+    }, [friends]);
 
     // Calculate snap points dynamically to stop strictly below header buttons
     // Buttons bottom: iOS ~104 (60+44), Android ~84 (40+44). 
@@ -147,9 +155,17 @@ export default function TripDetailScreen() {
                         </View>
                     </View>
                     <View style={styles.avatarRow}>
-                        {[1, 2, 3].map((_, i) => (
-                            <View key={i} style={[styles.avatarPlaceholder, { marginLeft: i > 0 ? -10 : 0 }]} />
-                        ))}
+                        {friendsList.length > 0 ? (
+                            friendsList.slice(0, 4).map((friend: string, index: number) => (
+                                <View key={index} style={[styles.avatarCircle, { zIndex: 4 - index, marginLeft: index === 0 ? 0 : -8 }]}>
+                                    <Image source={{ uri: friend }} style={styles.avatarImage} />
+                                </View>
+                            ))
+                        ) : (
+                            [1, 2, 3].map((_, i) => (
+                                <View key={i} style={[styles.avatarPlaceholder, { marginLeft: i > 0 ? -10 : 0 }]} />
+                            ))
+                        )}
                     </View>
                     <View style={styles.statsRow}>
                         <Text style={styles.statText}>{date || '03, Dec'}</Text>
@@ -307,7 +323,7 @@ export default function TripDetailScreen() {
                 {/* 1. Background Image/Map */}
                 <View style={styles.fixedBackground}>
                     <Image
-                        source={typeof image === 'string' ? { uri: image } : require('../assets/images/monte bianco.jpg')}
+                        source={require('../assets/images/background map.jpg')}
                         style={styles.image}
                         contentFit="cover"
                     />
@@ -546,6 +562,19 @@ const styles = StyleSheet.create({
         backgroundColor: '#555',
         borderWidth: 1,
         borderColor: '#051616',
+    },
+    avatarCircle: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        borderWidth: 1.5,
+        borderColor: '#051616',
+        overflow: 'hidden',
+        backgroundColor: '#ccc',
+    },
+    avatarImage: {
+        width: '100%',
+        height: '100%',
     },
     statsRow: {
         flexDirection: 'row',

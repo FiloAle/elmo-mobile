@@ -33,7 +33,8 @@ export default function UpcomingTripCard({ date, city, daysLeft, time, distance,
                 distance,
                 // Passing image source is tricky via params if it's a 'require' number.
                 // We'll skip passing 'image' if it's a number, so the detail screen uses its default fallback or specific logic.
-                image: typeof image === 'string' ? image : undefined
+                image: typeof image === 'string' ? image : undefined,
+                friends: JSON.stringify(friends) // Serialize array
             }
         });
     };

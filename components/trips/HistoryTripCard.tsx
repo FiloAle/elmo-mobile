@@ -27,14 +27,37 @@ export default function HistoryTripCard({ city, distance, images, trackImage, fr
                         <View style={styles.overlay} />
                     </View>
 
-                    {/* Photo Gallery Preview */}
-                    <View style={[styles.cardBox, styles.photoBox]}>
-                        <Image source={{ uri: images[0] }} style={styles.imageFill} contentFit="cover" />
-                        {images.length > 1 && (
-                            <View style={styles.photoOverlay}>
-                                <Text style={styles.photoCountText}>+{32}</Text>
-                            </View>
-                        )}
+                    {/* Photo Gallery Stack */}
+                    <View style={styles.photoStackContainer}>
+                        {/* We use a fixed set of dummy rotations for visual stability */}
+                        {images.slice(0, 3).map((img, index) => {
+                            const rotations = ['-6deg', '2deg', '8deg'];
+                            const xOffsets = [0, 15, 30]; // Horizontal stacking shift
+                            const yOffsets = [0, 5, -2]; // Slight vertical jiggle
+
+                            return (
+                                <View
+                                    key={index}
+                                    style={[
+                                        styles.stackedPhoto,
+                                        {
+                                            zIndex: index,
+                                            transform: [{ rotate: rotations[index % 3] }],
+                                            left: xOffsets[index % 3] + 10, // Base padding + shift
+                                            top: yOffsets[index % 3] + 10,
+                                        }
+                                    ]}
+                                >
+                                    <Image source={{ uri: img }} style={styles.imageFill} contentFit="cover" />
+                                    {/* Overlay for the last visible item to show count if there are more */}
+                                    {index === 2 && images.length > 3 && (
+                                        <View style={styles.photoOverlay}>
+                                            <Text style={styles.photoCountText}>+{images.length - 3}</Text>
+                                        </View>
+                                    )}
+                                </View>
+                            );
+                        })}
                     </View>
                 </View>
 
@@ -65,24 +88,49 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         marginBottom: 20,
     },
-    // Removed dateHeader style
     contentContainer: {
         flex: 1,
     },
     cardsRow: {
         flexDirection: 'row',
-        gap: 10,
-        marginBottom: 10,
+        gap: 12, // Increased gap slightly
+        marginBottom: 16,
+        height: 160, // Fixed height for the row to accommodate rotation
     },
     cardBox: {
         flex: 1,
-        height: 150,
         borderRadius: 16,
         overflow: 'hidden',
         backgroundColor: Colors.elmo.cardDark,
+        height: '100%',
     },
-    mapBox: {},
-    photoBox: {},
+    mapBox: {
+        flex: 1.2, // Give map slightly more space
+    },
+    photoStackContainer: {
+        flex: 1,
+        position: 'relative',
+        // justifyContent: 'center', // Align roughly
+    },
+    stackedPhoto: {
+        position: 'absolute',
+        width: 110,
+        height: 110,
+        borderRadius: 12,
+        overflow: 'hidden',
+        borderWidth: 2,
+        borderColor: Colors.elmo.background, // #051616
+        // Shadow
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.30,
+        shadowRadius: 4.65,
+        elevation: 8,
+        backgroundColor: '#222',
+    },
     imageFill: {
         width: '100%',
         height: '100%',
@@ -93,7 +141,7 @@ const styles = StyleSheet.create({
     },
     photoOverlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0,0,0,0.6)',
         justifyContent: 'center',
         alignItems: 'center',
     },

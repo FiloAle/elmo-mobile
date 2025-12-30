@@ -114,39 +114,9 @@ export default function TripsScreen() {
     minimumViewTime: 0,
   }).current;
 
-  const renderFooter = () => (
-    <View>
-      <View style={styles.sectionUpcoming}>
-        <Animated.Text style={[styles.sectionTitle, upcomingTitleStyle, { marginLeft: 20, marginBottom: 16 }]}>Upcoming</Animated.Text>
-        <View style={styles.upcomingCardWrapper}>
-          <UpcomingTripCard
-            key={upcomingTrip.id}
-            date={upcomingTrip.date}
-            city={upcomingTrip.city}
-            daysLeft={upcomingTrip.daysLeft}
-            time={upcomingTrip.time}
-            distance={upcomingTrip.distance}
-            image={upcomingTrip.image}
-            friends={upcomingTrip.friends}
-            highlighted={true}
-          />
-        </View>
-      </View>
-      <View style={{ height: 150 }} />
-    </View>
-  );
-
   return (
     <View style={styles.container}>
       <TripHeader />
-
-      {/* Fixed Header with Dynamic Date (Layer 3) */}
-      <View style={styles.headerContainer}>
-        <View style={styles.titleRow}>
-          <Animated.Text style={[styles.sectionTitle, historyTitleStyle]}>History</Animated.Text>
-          <Text style={styles.headerDateText}>{currentDate}</Text>
-        </View>
-      </View>
 
       <View style={{ flex: 1, position: 'relative' }}>
         <Animated.FlatList
@@ -166,7 +136,34 @@ export default function TripsScreen() {
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={true}
-          ListFooterComponent={renderFooter}
+          ListHeaderComponent={() => (
+            <View>
+              <View style={styles.sectionUpcoming}>
+                <Animated.Text style={[styles.sectionTitle, upcomingTitleStyle, { marginLeft: 20, marginBottom: 16 }]}>Upcoming</Animated.Text>
+                <View style={styles.upcomingCardWrapper}>
+                  <UpcomingTripCard
+                    key={upcomingTrip.id}
+                    date={upcomingTrip.date}
+                    city={upcomingTrip.city}
+                    daysLeft={upcomingTrip.daysLeft}
+                    time={upcomingTrip.time}
+                    distance={upcomingTrip.distance}
+                    image={upcomingTrip.image}
+                    friends={upcomingTrip.friends}
+                    highlighted={true}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.headerContainer}>
+                <View style={styles.titleRow}>
+                  <Animated.Text style={[styles.sectionTitle, historyTitleStyle]}>History</Animated.Text>
+                  <Text style={styles.headerDateText}>{currentDate}</Text>
+                </View>
+              </View>
+            </View>
+          )}
+          ListFooterComponent={<View style={{ height: 100 }} />}
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
         />
@@ -182,7 +179,7 @@ export default function TripsScreen() {
         <Ionicons name="add" size={24} color="#000" style={styles.fabIcon} />
         <Animated.Text style={styles.fabText}>Add Trip</Animated.Text>
       </TouchableOpacity>
-    </View>
+    </View >
   );
 }
 
