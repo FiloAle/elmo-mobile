@@ -1,5 +1,5 @@
 import { StyleSheet, View, TouchableOpacity, FlatList, Text } from 'react-native';
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect, useLayoutEffect } from 'react';
 import { Colors } from '@/constants/theme';
 import TripHeader from '@/components/trips/TripHeader';
 import HistoryTripCard from '@/components/trips/HistoryTripCard';
@@ -8,8 +8,73 @@ import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
+const INITIAL_OFFSET = 200;
+
 // Dummy Data
 const HISTORY_TRIPS = [
+  {
+    id: '5',
+    date: { month: 'JUN', day: '05' },
+    city: 'Lugano',
+    distance: '92.1km',
+    trackImage: require('../../assets/images/Percorso Arona.jpg'),
+    images: [
+      'https://picsum.photos/seed/trip5a/200/200',
+      'https://picsum.photos/seed/trip5b/200/200',
+      'https://picsum.photos/seed/trip5c/200/200',
+      'https://picsum.photos/seed/trip5d/200/200',
+    ],
+    friends: [
+      'https://picsum.photos/seed/user8/100',
+      'https://picsum.photos/seed/user9/100',
+    ]
+  },
+  {
+    id: '4',
+    date: { month: 'JUL', day: '10' },
+    city: 'Varese',
+    distance: '45.8km',
+    trackImage: require('../../assets/images/Percorso lecco.jpg'),
+    images: [
+      'https://picsum.photos/seed/trip4a/200/200',
+      'https://picsum.photos/seed/trip4b/200/200',
+    ],
+    friends: [
+      'https://picsum.photos/seed/user1/100',
+      'https://picsum.photos/seed/user3/100',
+      'https://picsum.photos/seed/user7/100',
+    ]
+  },
+  {
+    id: '3',
+    date: { month: 'AUG', day: '22' },
+    city: 'Como',
+    distance: '65.2km',
+    trackImage: require('../../assets/images/Percorso Arona.jpg'),
+    images: [
+      'https://picsum.photos/seed/trip3a/200/200',
+      'https://picsum.photos/seed/trip3b/200/200',
+      'https://picsum.photos/seed/trip3c/200/200',
+    ],
+    friends: [
+      'https://picsum.photos/seed/user2/100',
+      'https://picsum.photos/seed/user6/100',
+    ]
+  },
+  {
+    id: '2',
+    date: { month: 'SEP', day: '15' },
+    city: 'Lecco',
+    distance: '89.4km',
+    trackImage: require('../../assets/images/Percorso lecco.jpg'),
+    images: [
+      'https://picsum.photos/seed/trip2a/200/200',
+    ],
+    friends: [
+      'https://picsum.photos/seed/user4/100',
+      'https://picsum.photos/seed/user5/100',
+    ]
+  },
   {
     id: '1',
     date: { month: 'OCT', day: '07' },
@@ -35,20 +100,6 @@ const HISTORY_TRIPS = [
       'https://picsum.photos/seed/user3/100',
     ]
   },
-  {
-    id: '2',
-    date: { month: 'SEP', day: '15' },
-    city: 'Lecco',
-    distance: '89.4km',
-    trackImage: require('../../assets/images/Percorso lecco.jpg'),
-    images: [
-      'https://picsum.photos/seed/trip2a/200/200',
-    ],
-    friends: [
-      'https://picsum.photos/seed/user4/100',
-      'https://picsum.photos/seed/user5/100',
-    ]
-  }
 ];
 
 const UPCOMING_TRIPS = [
@@ -91,6 +142,17 @@ export default function TripsScreen() {
 
   // State for dynamic date
   const [currentDate, setCurrentDate] = useState(`${HISTORY_TRIPS[0].date.day} ${HISTORY_TRIPS[0].date.month} 2025`);
+
+  const flatListRef = useRef<FlatList>(null);
+
+  useLayoutEffect(() => {
+    // Initial scroll to focus on Upcoming section
+    setTimeout(() => {
+      if (flatListRef.current) {
+        flatListRef.current.scrollToOffset({ offset: INITIAL_OFFSET, animated: false });
+      }
+    }, 50);
+  }, []);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -136,6 +198,7 @@ export default function TripsScreen() {
         </View>
 
         <Animated.FlatList
+          ref={flatListRef}
           style={{ flex: 1 }}
           data={HISTORY_TRIPS}
           renderItem={({ item }) => (
@@ -201,11 +264,11 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 10,
-    paddingBottom: 20,
+    paddingBottom: 150,
   },
   headerContainer: {
     backgroundColor: Colors.elmo.background,
-    paddingTop: 8,
+    paddingTop: 20,
     paddingBottom: 8,
     zIndex: 20,
     paddingHorizontal: 20,
@@ -230,7 +293,7 @@ const styles = StyleSheet.create({
   },
   sectionUpcoming: {
     marginBottom: 10,
-    marginTop: 20,
+    marginTop: 40,
   },
   upcomingCardWrapper: {
     position: 'relative',
