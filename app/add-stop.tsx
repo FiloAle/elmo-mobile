@@ -21,12 +21,14 @@ const CHARGING_STATIONS = [
     { id: '1', name: 'Tesla Supercharger', address: 'Via Monte Napoleone, 12', distance: '1.2 km', status: 'Available', power: '250kW' },
     { id: '2', name: 'Enel X Way', address: 'Corso Como, 5', distance: '2.5 km', status: 'Busy', power: '50kW' },
     { id: '3', name: 'Ionity', address: 'A8 Service Station', distance: '8.0 km', status: 'Available', power: '350kW' },
+    { id: '4', name: 'Be Charge', address: 'Piazza Gae Aulenti', distance: '3.1 km', status: 'Available', power: '150kW' },
 ];
 
 const GENERAL_PLACES = [
     { id: '1', name: 'Starbucks Reserve', address: 'Piazza Cordusio', distance: '0.8 km', status: 'Open', power: null },
     { id: '2', name: 'Marchesi 1824', address: 'Galleria Vittorio Emanuele II', distance: '1.0 km', status: 'Busy', power: null },
     { id: '3', name: 'Camparino in Galleria', address: 'Piazza del Duomo', distance: '0.9 km', status: 'Open', power: null },
+    { id: '4', name: 'Pasticceria Cova', address: 'Via Montenapoleone', distance: '1.2 km', status: 'Open', power: null },
 ];
 
 export default function AddStopScreen() {
@@ -37,11 +39,14 @@ export default function AddStopScreen() {
 
     // Bottom Sheet
     const bottomSheetRef = useRef<BottomSheet>(null);
-    const snapPoints = useMemo(() => ['30%', '90%'], []);
+    const { height } = require('react-native').useWindowDimensions();
+    const HEADER_HEIGHT = 160;
+    const topSnapPoint = height - HEADER_HEIGHT;
+    const snapPoints = useMemo(() => ['30%', topSnapPoint], [topSnapPoint]);
 
     useEffect(() => {
         if (activeCategory) {
-            bottomSheetRef.current?.snapToIndex(0);
+            bottomSheetRef.current?.snapToIndex(1);
         } else {
             bottomSheetRef.current?.close();
         }
@@ -51,34 +56,46 @@ export default function AddStopScreen() {
         setActiveCategory(prev => prev === category ? null : category);
     };
 
-    const renderStationItem = ({ item }: { item: typeof CHARGING_STATIONS[0] }) => (
-        <View style={styles.resultItem}>
-            {/* Left Icon */}
-            <View style={styles.resultIconContainer}>
-                <MaterialCommunityIcons name="flash" size={24} color={Colors.elmo.accent} />
-            </View>
+    const renderGridItem = ({ item }: { item: any }) => {
+        // Randomly assign images for demo purposes
+        const images = [
+            require('../assets/images/monte bianco.jpg'),
+            require('../assets/images/Percorso Arona.jpg'),
+            require('../assets/images/Percorso lecco.jpg'),
+            require('../assets/images/background map.jpg')
+        ];
+        // Hash id to pick image consistently
+        const imgIndex = parseInt(item.id) % images.length;
+        const imageSource = images[imgIndex];
 
-            {/* Center Text */}
-            <View style={styles.resultTextContainer}>
-                <View style={styles.titleRow}>
-                    <Text style={styles.resultTitle}>{item.name}</Text>
-                    <Text style={styles.resultDistance}>{item.distance}</Text>
-                </View>
-                <Text style={styles.resultAddress}>{item.address}</Text>
-                <View style={styles.statusRow}>
-                    <Text style={[styles.statusText, { color: item.status === 'Available' || item.status === 'Open' ? Colors.elmo.accent : '#FF4444' }]}>
-                        {item.status}
-                    </Text>
-                    {item.power && <Text style={styles.powerText}>• {item.power}</Text>}
-                </View>
-            </View>
+        // Random rating for mock
+        const rating = (4.5 + Math.random() * 0.5).toFixed(1);
 
-            {/* Right Logic (Add Button) */}
-            <TouchableOpacity style={styles.addButton} onPress={() => console.log('Add station', item.name)}>
-                <Ionicons name="add" size={24} color="#000" />
-            </TouchableOpacity>
-        </View>
-    );
+        return (
+            <View style={styles.gridCard}>
+                {/* Image Section */}
+                <View style={styles.cardImageWrapper}>
+                    <Image source={imageSource} style={styles.cardImage} contentFit="cover" />
+
+                    {/* Rating Badge */}
+                    <View style={styles.ratingBadge}>
+                        <Ionicons name="star" size={10} color="#FFD700" />
+                        <Text style={styles.ratingText}>{rating}</Text>
+                    </View>
+                </View>
+
+                {/* Info Section */}
+                <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
+                <Text style={styles.cardDetails}>{item.distance} • 15 min</Text>
+
+                {/* Add Button */}
+                <TouchableOpacity style={styles.addStopPill} onPress={() => console.log('Add', item.name)}>
+                    <Ionicons name="add" size={16} color="#000" />
+                    <Text style={styles.addStopText}>Add Stop</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    };
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -156,19 +173,28 @@ export default function AddStopScreen() {
                         ref={bottomSheetRef}
                         index={0} // Start at 30%
                         snapPoints={snapPoints}
-                        handleIndicatorStyle={{ backgroundColor: '#555', width: 40 }}
-                        backgroundStyle={{ backgroundColor: '#051616' }}
+                        handleIndicatorStyle={{ backgroundColor: '#333', width: 40, height: 4, borderRadius: 2, marginTop: 8 }}
+                        backgroundStyle={{ backgroundColor: '#051616', borderTopLeftRadius: 28, borderTopRightRadius: 28 }}
                         style={{ zIndex: 50 }}
                         enablePanDownToClose={true}
+                        topInset={160}
                         onClose={() => setActiveCategory(null)}
                     >
                         <View style={styles.bottomSheetContent}>
-                            <Text style={styles.sheetTitle}>Nearby {activeCategory === 'Charging' ? 'Stations' : activeCategory}</Text>
+                            <View style={styles.sheetHeaderRow}>
+                                <Text style={styles.sheetTitle}>Nearby {activeCategory === 'Charging' ? 'Stations' : activeCategory}</Text>
+                                <TouchableOpacity>
+                                    <Text style={styles.seeAllText}>Vedi tutti (12)</Text>
+                                </TouchableOpacity>
+                            </View>
+
                             <BottomSheetFlatList
                                 data={activeCategory === 'Charging' ? CHARGING_STATIONS : GENERAL_PLACES}
                                 keyExtractor={(item) => item.id}
-                                renderItem={renderStationItem}
+                                renderItem={renderGridItem}
                                 contentContainerStyle={styles.listContent}
+                                numColumns={2}
+                                columnWrapperStyle={styles.columnWrapper}
                             />
                         </View>
                     </BottomSheet>
@@ -277,78 +303,97 @@ const styles = StyleSheet.create({
         backgroundColor: '#051616',
         paddingHorizontal: 20,
     },
-    sheetTitle: {
-        color: '#FFF',
-        fontSize: 18,
-        fontWeight: '600',
+    sheetHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: 16,
         marginTop: 8,
+    },
+    sheetTitle: {
+        color: '#FFF',
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    seeAllText: {
+        color: Colors.elmo.accent,
+        fontSize: 14,
+        fontWeight: '400',
     },
     listContent: {
         paddingBottom: 40,
     },
-    resultItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    columnWrapper: {
+        justifyContent: 'space-between',
+        gap: 12,
+    },
+    // Grid Card Styles
+    gridCard: {
+        flex: 1, // Take up available space in column (approx 50%)
+        width: '48%', // Fallback
         backgroundColor: '#0F1F1F',
         borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        marginBottom: 16,
+        padding: 10,
+        // Optional: Border if needed
+        // borderWidth: 1,
+        // borderColor: '#1A2A2A',
     },
-    resultIconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(45, 212, 191, 0.1)',
+    cardImageWrapper: {
+        width: '100%',
+        aspectRatio: 1, // Square
+        borderRadius: 16,
+        backgroundColor: '#1A2A2A', // Placeholder bg
+        marginBottom: 10,
+        overflow: 'hidden',
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 12,
     },
-    resultTextContainer: {
-        flex: 1,
-        marginRight: 8,
+    cardImage: {
+        width: '100%',
+        height: '100%',
     },
-    titleRow: {
+    ratingBadge: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 8,
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 4,
+        gap: 2,
     },
-    resultTitle: {
+    ratingText: {
+        color: '#FFF',
+        fontSize: 10,
+        fontWeight: 'bold',
+    },
+    cardName: {
         color: '#FFF',
         fontSize: 16,
-        fontWeight: '600',
-    },
-    resultDistance: {
-        color: '#889999',
-        fontSize: 14,
-    },
-    resultAddress: {
-        color: '#AAAAAA',
-        fontSize: 13,
+        fontWeight: 'bold',
         marginBottom: 4,
     },
-    statusRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    statusText: {
-        fontSize: 13,
-        fontWeight: '500',
-    },
-    powerText: {
+    cardDetails: {
         color: '#889999',
         fontSize: 13,
-        marginLeft: 4,
+        marginBottom: 12,
     },
-    addButton: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
+    addStopPill: {
         backgroundColor: Colors.elmo.accent,
+        borderRadius: 20,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 4,
+    },
+    addStopText: {
+        color: '#000',
+        fontSize: 13,
+        fontWeight: '600',
     },
 });

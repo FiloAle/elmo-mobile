@@ -37,7 +37,10 @@ export default function HomeScreen() {
 
   // Bottom Sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['25%', '50%', '90%'], []);
+  const { height } = require('react-native').useWindowDimensions();
+  const HEADER_HEIGHT = 160;
+  const topSnapPoint = height - HEADER_HEIGHT;
+  const snapPoints = useMemo(() => ['25%', '50%', topSnapPoint], [topSnapPoint]);
 
   useFocusEffect(
     useCallback(() => {
@@ -183,6 +186,7 @@ export default function HomeScreen() {
           backgroundStyle={{ backgroundColor: '#051616' }}
           style={{ zIndex: 50 }}
           enablePanDownToClose={false}
+          topInset={160}
         >
           <View style={styles.bottomSheetContent}>
             {activeCategory ? (
@@ -196,7 +200,10 @@ export default function HomeScreen() {
                 />
               </>
             ) : (
-              <ScrollView contentContainerStyle={styles.homeSheetContent} showsVerticalScrollIndicator={false}>
+              <ScrollView
+                contentContainerStyle={styles.homeSheetContent}
+                showsVerticalScrollIndicator={false}
+              >
                 {/* Traffic Conditions Card */}
                 <View style={styles.lightCard}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>

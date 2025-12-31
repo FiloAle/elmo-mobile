@@ -7,8 +7,9 @@ import UpcomingTripCard from '@/components/trips/UpcomingTripCard';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const INITIAL_OFFSET = 200;
+const INITIAL_OFFSET = 1200;
 
 // Dummy Data
 const HISTORY_TRIPS = [
@@ -190,6 +191,21 @@ export default function TripsScreen() {
       <TripHeader />
 
       <View style={{ flex: 1, position: 'relative' }}>
+        <LinearGradient
+          colors={[Colors.elmo.background, 'transparent']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          locations={[0.6, 1]}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 65,
+            zIndex: 1,
+          }}
+          pointerEvents="none"
+        />
         <View style={styles.headerContainer}>
           <View style={styles.titleRow}>
             <Animated.Text style={[styles.sectionTitle, historyTitleStyle]}>History</Animated.Text>
@@ -215,7 +231,7 @@ export default function TripsScreen() {
           contentContainerStyle={styles.scrollContent}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
-          showsVerticalScrollIndicator={true}
+          showsVerticalScrollIndicator={false}
           ListFooterComponent={() => (
             <View>
               <View style={styles.sectionUpcoming}>
@@ -240,7 +256,6 @@ export default function TripsScreen() {
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
         />
-        {/* Gradient Removed */}
       </View>
 
       {/* Floating Action Button */}
@@ -252,7 +267,7 @@ export default function TripsScreen() {
         <Ionicons name="add" size={24} color="#000" style={styles.fabIcon} />
         <Animated.Text style={styles.fabText}>Add Trip</Animated.Text>
       </TouchableOpacity>
-    </View >
+    </View>
   );
 }
 
@@ -264,12 +279,12 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 10,
-    paddingBottom: 150,
+    paddingBottom: 60,
   },
   headerContainer: {
-    backgroundColor: Colors.elmo.background,
-    paddingTop: 20,
-    paddingBottom: 8,
+    backgroundColor: 'transparent',
+    paddingTop: 0,
+    paddingBottom: 0,
     zIndex: 20,
     paddingHorizontal: 20,
   },
@@ -279,21 +294,22 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   sectionTitle: {
-    color: Colors.elmo.text,
-    fontSize: 27,
+    color: '#888',
+    fontSize: 16,
     fontFamily: 'serif',
-    fontWeight: 'normal',
+    fontWeight: '500',
     // Removed margins as they are handled by container/row
   },
   headerDateText: {
-    color: '#94A3B8',
+    color: '#FFF',
     fontWeight: 'bold',
     fontSize: 13,
     textTransform: 'uppercase',
+    marginTop: 4,
   },
   sectionUpcoming: {
     marginBottom: 10,
-    marginTop: 40,
+    marginTop: 24,
   },
   upcomingCardWrapper: {
     position: 'relative',

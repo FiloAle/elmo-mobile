@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 12, // Increased gap slightly
         marginBottom: 16,
+        marginTop: 16,
         height: 160, // Fixed height for the row to accommodate rotation
     },
     cardBox: {

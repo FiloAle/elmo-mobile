@@ -31,7 +31,7 @@ export const Colors = {
     accent: '#2DD4BF', // Mint Green/Cyan
     text: '#FFFFFF',
     textSecondary: '#A1A1AA', // Light Grey
-    cardDark: '#022429', // Slightly lighter than background for cards
+    cardDark: '#0F1F1F', // Slightly lighter than background for cards
   },
 };
 

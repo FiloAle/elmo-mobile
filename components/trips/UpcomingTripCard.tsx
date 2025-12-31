@@ -113,13 +113,13 @@ const styles = StyleSheet.create({
         // Centered Glow Implementation
         shadowColor: Colors.elmo.accent,
         shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.5,
+        shadowOpacity: 0.6,
         shadowRadius: 5,
-        elevation: 5, // Android shadow fallback (black usually, but kept for depth)
+        elevation: 6, // Android shadow fallback (black usually, but kept for depth)
     },
     card: {
         flexDirection: 'column',
-        backgroundColor: '#0A1F1F', // Dark Teal
+        backgroundColor: Colors.elmo.cardDark, // Dark Teal
         borderRadius: 24,
         borderWidth: 1,
         borderColor: Colors.elmo.accent, // #2DD4BF

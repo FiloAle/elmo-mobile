@@ -63,8 +63,8 @@ export default function TripDetailScreen() {
     // Buttons bottom: iOS ~104 (60+44), Android ~84 (40+44). 
     // We want a top margin of approx 100px.
     // Using topInset approach indirectly by setting the max snap point.
-    const topMargin = 100;
-    const topSnapPoint = height - topMargin;
+    const HEADER_HEIGHT = 110;
+    const topSnapPoint = height - HEADER_HEIGHT;
     const snapPoints = useMemo(() => ['25%', '70%', topSnapPoint], [topSnapPoint]);
 
     const renderTimelineItem = (item: typeof TIMELINE_DATA[0], index: number) => {
@@ -347,6 +347,7 @@ export default function TripDetailScreen() {
                     onChange={(index) => setSheetIndex(index)} // Sync state with interactions
                     handleIndicatorStyle={{ backgroundColor: '#555', width: 40 }}
                     backgroundStyle={{ backgroundColor: '#051616', borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
+                    topInset={110}
                 >
                     <View style={{ flex: 1 }}>
                         {/* Sticky Tab Bar Container */}

@@ -4,11 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { BlurView } from 'expo-blur';
+import TripHeader from '@/components/trips/TripHeader';
 
 const { width } = Dimensions.get('window');
 
 const MINT_COLOR = '#40E0D0';
-const BG_COLOR = '#051616';
 
 export default function CarScreen() {
   const renderBatteryBar = () => {
@@ -27,8 +27,14 @@ export default function CarScreen() {
     );
   };
 
+  const [climateOn, setClimateOn] = React.useState(true);
+  const [emergencyOn, setEmergencyOn] = React.useState(false);
+  const [isLocked, setIsLocked] = React.useState(false);
+
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
+      <TripHeader />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* Hero Section */}
@@ -87,43 +93,65 @@ export default function CarScreen() {
 
         {/* Remote Controls */}
         <View style={styles.controlsSection}>
-          <Text style={styles.controlsTitle}>Controlli da remoto</Text>
+          <Text style={styles.controlsTitle}>Remote Controls</Text>
 
           <View style={styles.controlsGrid}>
-            {/* Active Button */}
-            <TouchableOpacity style={[styles.controlButton, styles.controlButtonActive]} activeOpacity={0.8}>
-              <MaterialCommunityIcons name="fan" size={32} color="#000" />
-              <Text style={styles.controlTextActive}>Clima</Text>
+            {/* Climate Button */}
+            <TouchableOpacity
+              style={[styles.controlButton, climateOn && styles.controlButtonActive]}
+              activeOpacity={0.8}
+              onPress={() => setClimateOn(!climateOn)}
+            >
+              <MaterialCommunityIcons
+                name="fan"
+                size={32}
+                color={climateOn ? MINT_COLOR : "#FFF"}
+              />
+              <Text style={climateOn ? styles.controlTextActive : styles.controlText}>Climate</Text>
             </TouchableOpacity>
 
-            {/* Inactive Buttons */}
-            <TouchableOpacity style={styles.controlButton} activeOpacity={0.8}>
-              <Ionicons name="lock-closed-outline" size={28} color="#FFF" />
-              <Text style={styles.controlText}>Blocco porte</Text>
+            {/* Emergency Lights Button */}
+            <TouchableOpacity
+              style={[styles.controlButton, emergencyOn && styles.controlButtonActive]}
+              activeOpacity={0.8}
+              onPress={() => setEmergencyOn(!emergencyOn)}
+            >
+              <Ionicons
+                name="warning-outline"
+                size={32}
+                color={emergencyOn ? MINT_COLOR : "#FFF"}
+              />
+              <Text style={emergencyOn ? styles.controlTextActive : styles.controlText}>Emergency Lights</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.controlButton} activeOpacity={0.8}>
-              <Ionicons name="lock-open-outline" size={28} color="#FFF" />
-              <Text style={styles.controlText}>Sblocco porte</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.controlButton} activeOpacity={0.8}>
-              <Ionicons name="flash-outline" size={28} color="#FFF" />
-              <Text style={styles.controlText}>Luci</Text>
+            {/* Lock/Unlock Door Button */}
+            <TouchableOpacity
+              style={[styles.controlButton, isLocked && styles.controlButtonActive]}
+              activeOpacity={0.8}
+              onPress={() => setIsLocked(!isLocked)}
+            >
+              <Ionicons
+                name={isLocked ? "lock-closed-outline" : "lock-open-outline"}
+                size={28}
+                color={isLocked ? MINT_COLOR : "#FFF"}
+              />
+              <Text style={isLocked ? styles.controlTextActive : styles.controlText}>
+                {isLocked ? "Unlock Door" : "Lock Door"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={{ height: 120 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BG_COLOR,
+    backgroundColor: Colors.elmo.background,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -150,7 +178,7 @@ const styles = StyleSheet.create({
   timestampLabel: {
     color: MINT_COLOR,
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '400',
   },
 
   // Status Section
@@ -159,8 +187,8 @@ const styles = StyleSheet.create({
   },
   modelName: {
     color: '#FFF',
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 21,
+    fontWeight: '500',
     marginBottom: 15,
   },
   statusRow: {
@@ -178,7 +206,7 @@ const styles = StyleSheet.create({
   statusText: {
     color: '#FFF',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '300',
   },
   batteryBarContainer: {
     flexDirection: 'row',
@@ -194,12 +222,10 @@ const styles = StyleSheet.create({
 
   // Map Card
   mapCard: {
-    backgroundColor: '#0F2525', // Slightly lighter than bg
-    borderRadius: 30,
+    backgroundColor: Colors.elmo.cardDark, // Slightly lighter than bg
+    borderRadius: 45,
     overflow: 'hidden',
     marginBottom: 30,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
   },
   mapContainer: {
     height: 180,
@@ -227,7 +253,7 @@ const styles = StyleSheet.create({
   floatingLabelText: {
     color: '#FFF',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '300',
   },
   navButton: {
     backgroundColor: MINT_COLOR,
@@ -240,7 +266,7 @@ const styles = StyleSheet.create({
   navButtonText: {
     color: '#000',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 
   // Remote Controls
@@ -250,35 +276,41 @@ const styles = StyleSheet.create({
   controlsTitle: {
     color: '#888',
     fontSize: 16,
+    fontWeight: '500',
     marginLeft: 4,
   },
   controlsGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 15,
+    flexWrap: 'nowrap',
+    gap: 10,
   },
   controlButton: {
-    width: (width - 55) / 2, // (screen width - padding(40) - gap(15)) / 2
-    height: 110,
-    borderRadius: 24,
+    width: (width - 60) / 3, // (screen width - padding(40) - gap(10*2)) / 3
+    height: 100,
+    borderRadius: 20,
     justifyContent: 'space-between',
-    padding: 16,
+    padding: 12,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
     backgroundColor: 'transparent',
   },
   controlButtonActive: {
-    backgroundColor: MINT_COLOR,
+    backgroundColor: 'rgba(64, 224, 208, 0.05)', // Very subtle tint
     borderColor: MINT_COLOR,
+    shadowColor: MINT_COLOR,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 2,
   },
   controlText: {
     color: '#FFF',
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '400',
   },
   controlTextActive: {
-    color: '#000',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: MINT_COLOR,
+    fontSize: 13,
+    fontWeight: '600',
   },
 });

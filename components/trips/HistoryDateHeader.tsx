@@ -19,18 +19,19 @@ export default function HistoryDateHeader({ date, isFirst }: HistoryDateHeaderPr
 const styles = StyleSheet.create({
     headerContainer: {
         backgroundColor: 'transparent', // Fully transparent
-        paddingVertical: 8,
         paddingHorizontal: 20,
         alignItems: 'flex-start',
+        marginBottom: 16,
+        marginTop: 24,
         zIndex: 10, // Layer 3 (Top of Cards and Gradient)
     },
     firstHeader: {
-        paddingTop: 0, // Minimal padding for first item
+        paddingTop: 10, // Minimal padding for first item
     },
     dateText: {
         color: '#FFFFFF',
-        fontWeight: '400',
-        fontSize: 13,
+        fontWeight: 'bold',
+        fontSize: 14,
         textTransform: 'uppercase',
     },
 });
