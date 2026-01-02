@@ -345,6 +345,9 @@ export default function TripDetailScreen() {
                     snapPoints={snapPoints}
                     index={sheetIndex} // Controlled index
                     onChange={(index) => setSheetIndex(index)} // Sync state with interactions
+                    enableDynamicSizing={false}
+                    activeOffsetY={[-5, 5]}
+                    enableOverDrag={false}
                     handleIndicatorStyle={{ backgroundColor: '#555', width: 40 }}
                     backgroundStyle={{ backgroundColor: '#051616', borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
                     topInset={110}
@@ -377,12 +380,12 @@ export default function TripDetailScreen() {
 
                         <BottomSheetScrollView
                             contentContainerStyle={styles.scrollContent}
-                            showsVerticalScrollIndicator={false}
+                            showsVerticalScrollIndicator={true}
+                            nestedScrollEnabled={true}
+                            disallowInterruption={true}
+                            bounces={true}
                         >
                             {activeTab === 'Trip' ? <TripContent /> : activeTab === 'Cost' ? <CostContent /> : activeTab === 'Album' ? <AlbumContent /> : activeTab === 'Music' ? <MusicContent /> : null}
-
-                            {/* Padding for bottom safety */}
-                            <View style={{ height: 100 }} />
                         </BottomSheetScrollView>
                     </View>
                 </BottomSheet>
@@ -472,7 +475,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: 24,
-        paddingBottom: 24,
+        paddingBottom: 220, // Increased padding for footer visibility
         paddingTop: 8,
     },
     pillTabsContainer: {

@@ -181,10 +181,10 @@ export default function TripsScreen() {
     }
   }, []);
 
-  const viewabilityConfig = useRef({
+  const viewabilityConfig = {
     itemVisiblePercentThreshold: 50, // Update when 50% visible
     minimumViewTime: 0,
-  }).current;
+  };
 
   return (
     <View style={styles.container}>
@@ -231,7 +231,7 @@ export default function TripsScreen() {
           contentContainerStyle={styles.scrollContent}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           ListFooterComponent={() => (
             <View>
               <View style={styles.sectionUpcoming}>
