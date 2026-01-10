@@ -18,17 +18,17 @@ const CATEGORIES = [
 ];
 
 const CHARGING_STATIONS = [
-    { id: '1', name: 'Tesla Supercharger', address: 'Via Monte Napoleone, 12', distance: '1.2 km', status: 'Available', power: '250kW' },
-    { id: '2', name: 'Enel X Way', address: 'Corso Como, 5', distance: '2.5 km', status: 'Busy', power: '50kW' },
-    { id: '3', name: 'Ionity', address: 'A8 Service Station', distance: '8.0 km', status: 'Available', power: '350kW' },
-    { id: '4', name: 'Be Charge', address: 'Piazza Gae Aulenti', distance: '3.1 km', status: 'Available', power: '150kW' },
+    { id: '1', name: 'Tesla Supercharger', address: 'Via Monte Napoleone, 12', distance: '1.2 km', status: 'Available', power: '250kW', image: require('../assets/images/tesla.jpg') },
+    { id: '2', name: 'Enel X Way', address: 'Corso Como, 5', distance: '2.5 km', status: 'Busy', power: '50kW', image: require('../assets/images/enel.jpg') },
+    { id: '3', name: 'Ionity', address: 'A8 Service Station', distance: '8.0 km', status: 'Available', power: '350kW', image: require('../assets/images/ionity.jpg') },
+    { id: '4', name: 'Be Charge', address: 'Piazza Gae Aulenti', distance: '3.1 km', status: 'Available', power: '150kW', image: require('../assets/images/becharge.jpg') },
 ];
 
 const GENERAL_PLACES = [
-    { id: '1', name: 'Starbucks Reserve', address: 'Piazza Cordusio', distance: '0.8 km', status: 'Open', power: null },
-    { id: '2', name: 'Marchesi 1824', address: 'Galleria Vittorio Emanuele II', distance: '1.0 km', status: 'Busy', power: null },
-    { id: '3', name: 'Camparino in Galleria', address: 'Piazza del Duomo', distance: '0.9 km', status: 'Open', power: null },
-    { id: '4', name: 'Pasticceria Cova', address: 'Via Montenapoleone', distance: '1.2 km', status: 'Open', power: null },
+    { id: '1', name: 'Starbucks Reserve', address: 'Piazza Cordusio', distance: '0.8 km', status: 'Open', power: null, image: require('../assets/images/starbucks.jpg') },
+    { id: '2', name: 'Marchesi 1824', address: 'Galleria Vittorio Emanuele II', distance: '1.0 km', status: 'Busy', power: null, image: require('../assets/images/marchesi.jpg') },
+    { id: '3', name: 'Camparino in Galleria', address: 'Piazza del Duomo', distance: '0.9 km', status: 'Open', power: null, image: require('../assets/images/camparino.jpg') },
+    { id: '4', name: 'Pasticceria Cova', address: 'Via Montenapoleone', distance: '1.2 km', status: 'Open', power: null, image: require('../assets/images/cova.jpg') },
 ];
 
 export default function AddStopScreen() {
@@ -64,9 +64,9 @@ export default function AddStopScreen() {
             require('../assets/images/Percorso lecco.jpg'),
             require('../assets/images/background map.jpg')
         ];
-        // Hash id to pick image consistently
+        // If item has a specific image, use it. Otherwise, pick randomly.
         const imgIndex = parseInt(item.id) % images.length;
-        const imageSource = images[imgIndex];
+        const imageSource = item.image || images[imgIndex];
 
         // Random rating for mock
         const rating = (4.5 + Math.random() * 0.5).toFixed(1);

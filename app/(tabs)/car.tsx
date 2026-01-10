@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   controlButton: {
-    width: (width - 60) / 3, // (screen width - padding(40) - gap(10*2)) / 3
+    width: (width - 52) / 3, // (screen width - padding(32) - gap(10*2)) / 3
     height: 100,
     borderRadius: 20,
     justifyContent: 'space-between',
