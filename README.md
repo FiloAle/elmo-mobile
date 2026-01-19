@@ -10,19 +10,16 @@ This application acts as the primary controller for passengers, allowing them to
 * **Real-Time Sync:** Seamless bidirectional synchronization with the in-car main dashboard (iPad).
 * **Smart POI Search:** Utilize OpenStreetMap APIs to find nearby points of interest and add intermediate stops on the fly.
 * **Expense Tracking:** Automated breakdown of trip costs (gas, tolls, parking) for the group.
-* **AI Assistant:** Natural language interaction powered by Llama (via Groq API) for contextual suggestions.
 
 ## 🛠️ Tech Stack
 * **Framework:** React Native (Expo).
 * **Mapping:** OpenStreetMap API.
-* **LLM:** Llama (via Groq API).
 * **Backend & Sync:** Node.js local server with WebSocket for multi-device state management.
 
 ## 🚀 Getting Started
 1.  Clone the repository.
 2.  Install dependencies: `npm install`.
-3.  Add your API keys (Groq, OSM) in the `.env` file.
-4.  Start the app: `npx expo start`.
+3.  Start the app: `npx expo start`.
 
 ---
 *Developed for the "Mobility Futures" exhibition at Politecnico di Milano (2026).*
