@@ -6,17 +6,17 @@ The mobile companion application for the **Elmo** ecosystem, designed to transfo
 This application acts as the primary controller for passengers, allowing them to plan trips, manage the route, and interact with the vehicle's dashboard in real-time without distracting the driver.
 
 ## ✨ Key Features
-* [cite_start]**Collaborative Planning:** Organize group trips, set pick-up points, and sync routes with friends before the journey begins[cite: 398].
-* [cite_start]**Real-Time Sync:** Seamless bidirectional synchronization with the in-car main dashboard (iPad)[cite: 147].
-* [cite_start]**Smart POI Search:** Utilize OpenStreetMap APIs to find nearby points of interest and add intermediate stops on the fly[cite: 141].
-* [cite_start]**Expense Tracking:** Automated breakdown of trip costs (gas, tolls, parking) for the group[cite: 466].
+* **Collaborative Planning:** Organize group trips, set pick-up points, and sync routes with friends before the journey begins.
+* **Real-Time Sync:** Seamless bidirectional synchronization with the in-car main dashboard (iPad).
+* **Smart POI Search:** Utilize OpenStreetMap APIs to find nearby points of interest and add intermediate stops on the fly.
+* **Expense Tracking:** Automated breakdown of trip costs (gas, tolls, parking) for the group.
 * **AI Assistant:** Natural language interaction powered by Llama (via Groq API) for contextual suggestions.
 
 ## 🛠️ Tech Stack
-* [cite_start]**Framework:** React Native (Expo)[cite: 141].
+* **Framework:** React Native (Expo).
 * **Mapping:** OpenStreetMap API.
 * **LLM:** Llama (via Groq API).
-* [cite_start]**Backend & Sync:** Node.js local server with WebSocket for multi-device state management[cite: 142].
+* **Backend & Sync:** Node.js local server with WebSocket for multi-device state management.
 
 ## 🚀 Getting Started
 1.  Clone the repository.
